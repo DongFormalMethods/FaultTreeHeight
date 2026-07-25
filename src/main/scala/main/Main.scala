@@ -9,13 +9,6 @@ import viz.DDTViz
 
 object Main {
 
-    // TODO: convert fault-tree to decision tree.
-    // TODO: algorithms: BUDA, CUDA, PADA.
-
-    // BUDA = algorithm8 (previously called 'remind')
-    // TODO: others?
-
-
     def main(args: Array[String]): Unit = {
         // TODO: fix slf4j warning.
 

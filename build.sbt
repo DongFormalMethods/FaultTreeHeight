@@ -17,6 +17,7 @@ libraryDependencies ++= Seq(
     "com.github.sbt.junit" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test
 )
 libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0"
+libraryDependencies += "org.slf4j" % "slf4j-jdk14" % "2.0.12"
 
 enablePlugins(JmhPlugin)
 Jmh / javaOptions ++= Seq(
@@ -26,9 +27,14 @@ Jmh / javaOptions ++= Seq(
 
 lazy val root = (project in file("."))
   .settings(
-    name := "FaultTreeHeight"
+    name := "FaultTreeHeight",
+    assembly / assemblyJarName := "FaultTreeHeight.jar"
   )
 
 // structured concurrency api
 javacOptions ++= Seq("--release", "23", "--enable-preview")
 javaOptions += "--enable-preview"
+
+ThisBuild / assemblyMergeStrategy := {
+    _ => MergeStrategy.preferProject
+}
