@@ -34,9 +34,9 @@ object DDTViz {
                     val leftNode = recurse(left)
                     val rightNode = recurse(right)
 
-                    val leftLink = vertex.linkTo(leftNode).`with`(Style.DASHED)     // TODO is this correct? is the left side always the 'false'/'0' branch?
+                    val leftLink = vertex.linkTo(leftNode).`with`(Style.DASHED)     // basic event with 'id' failed
                     vertex.addLink(leftLink)
-                    val rightLink = vertex.linkTo(rightNode).`with`(Style.SOLID)    // TODO is this correct? is the right side always the 'true'/'1' branch?
+                    val rightLink = vertex.linkTo(rightNode).`with`(Style.SOLID)    // basic event with 'id' is operating
                     vertex.addLink(rightLink)
 
                     vertex

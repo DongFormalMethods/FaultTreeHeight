@@ -323,9 +323,9 @@ def main(): Unit = {
 
     println(height(tree, probabilities))
 
-//    val cutSets = Set(Set(0), Set(1, 2), Set(1, 3))
-//    val pathSets = Set(Set(0, 1), Set(0, 2, 3))
-//    val probabilities = IntMap(0 -> 2D/3D, 1 -> 1D/4D, 2 -> 1D/3D, 3 -> 1D/2D)
+//    val cutSets = Set(Set("0"), Set("1", "2"), Set("1", "3"))
+//    val pathSets = Set(Set("0", "1"), Set("0", "2", "3"))
+//    val probabilities = Map("0" -> 2D/3D, "1" -> 1D/4D, "2" -> 1D/3D, "3" -> 1D/2D)
 //    val aBasicEvent = new java.util.Random().nextInt(probabilities.size)    // unexpected result for aBasicEvent = 0
 //    println(aBasicEvent)
 //
@@ -334,14 +334,14 @@ def main(): Unit = {
 //    println(etas)
 //    println(hNil)   // 1.4583333333333335 for aBasicEvent = 0
 //
-//    val exampleTree = FaultTree(0, Map(
-//        0 -> TreeNode.Combination(0, Gate.Or, Set(1, 2)),
-//        1 -> TreeNode.BasicEvent(1, 0D),    // A
-//        2 -> TreeNode.Combination(2, Gate.And, Set(3, 4)),
-//        3 -> TreeNode.BasicEvent(3, 0D),    // B
-//        4 -> TreeNode.Combination(4, Gate.Or, Set(5, 6)),
-//        5 -> TreeNode.BasicEvent(5, 0D),    // C
-//        6 -> TreeNode.BasicEvent(6, 0D),    // D
+//    val exampleTree = FaultTree("0", Map(
+//        "0" -> TreeNode.Combination("0", Gate.Or, Set("1", "2")),
+//        "1" -> TreeNode.BasicEvent("1", 0D),    // A
+//        "2" -> TreeNode.Combination("2", Gate.And, Set("3", "4")),
+//        "3" -> TreeNode.BasicEvent("3", 0D),    // B
+//        "4" -> TreeNode.Combination("4", Gate.Or, Set("5", "6")),
+//        "5" -> TreeNode.BasicEvent("5", 0D),    // C
+//        "6" -> TreeNode.BasicEvent("6", 0D),    // D
 //    ))
 
 //    println(minimalCutSets(exampleTree))
