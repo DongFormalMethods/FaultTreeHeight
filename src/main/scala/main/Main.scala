@@ -62,8 +62,6 @@ object Main {
         import minimalcutpathset.{Eta, Etas, Path, Decision, Event}
 
         val etasByLength = etas.toSeq.sortBy((p, eta) => p.size)
-        etasByLength.foreach(println)
-        println()
 
         def etaToDiagnosticDecisionTree(eta: Eta): BinaryDecisionTree = eta match {
             case Decision.One => BinaryDecisionTree.One
@@ -84,7 +82,6 @@ object Main {
         }
 
         var diagnosticDecisionTree: BinaryDecisionTree = null;
-
         for ((path, eta) <- etasByLength) {
             diagnosticDecisionTree = insertLeaf(diagnosticDecisionTree, path, eta)
         }
