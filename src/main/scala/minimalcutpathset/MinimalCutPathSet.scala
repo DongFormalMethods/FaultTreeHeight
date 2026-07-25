@@ -17,6 +17,7 @@ enum TreeNode(id: Event):
     case Combination(id: Event, gate: Gate, children: Set[Event]) extends TreeNode(id)
     case BasicEvent(id: Event, probability: Probability) extends TreeNode(id)
 
+/** A DAG-like Fault Tree. */
 case class FaultTree(topEvent: Event, events: Map[Event, TreeNode]):
     def node(id: Event): TreeNode = events(id)
     def topNode = node(topEvent)
@@ -297,7 +298,7 @@ def approximate(minimalCutSets: CutSets, minimalPathSets: PathSets, basicEvents:
     (minimumEtas, minimumHeight)
 }
 
-// TODO JDK 25: use StableValue api.
+// TODO: use StableValue api, when it is stable :^).
 class CachedFunction0[A](private var supplier: Function0[A]) extends Function0[A] {
     private var value: A | Unset.type = Unset
 
@@ -394,6 +395,7 @@ def getBasicEvents(faultTree: FaultTree): Set[Event] =
         .map((event, _) => event)
         .toSet
 
+// 'Method Of Obtaining Cutsets' algorithm.
 def MOCUS(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEvents(faultTree)): Seq[Set[Event]] = {
 
     // contains only sets which completely consist of basic evens
@@ -433,6 +435,7 @@ def MOCUS(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEvents(faultTr
     removeSupersets(resultBuilder)
 }
 
+// Similar, but for PathSets.
 def MOPAS(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEvents(faultTree)): Seq[Set[Event]] = {
 
     // contains only sets which completely consist of basic evens

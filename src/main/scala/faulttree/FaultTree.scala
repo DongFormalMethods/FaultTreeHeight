@@ -7,6 +7,7 @@ type Real = Double
 
 type Event = Int
 
+/** A Tree-like Fault Tree. */
 enum FaultTree(val event: Event):
     case BasicEvent(id: Event, probability: Probability) extends FaultTree(id)
     case AndEvent(id: Event, children: Seq[FaultTree]) extends FaultTree(id)

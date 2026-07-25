@@ -6,6 +6,7 @@ import scala.collection.mutable
 
 type Event = Int
 
+/** Diagnostic Decision Tree */
 enum BinaryDecisionTree:
     case Zero
     case One

@@ -16,6 +16,7 @@ libraryDependencies += "com.lihaoyi" %% "fastparse" % "3.1.1"
 libraryDependencies ++= Seq(
     "com.github.sbt.junit" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test
 )
+libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0"
 
 enablePlugins(JmhPlugin)
 Jmh / javaOptions ++= Seq(
