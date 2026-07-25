@@ -43,5 +43,5 @@ def PaDAprob(pathSets: Set[Set[Event]], probabilities: Map[Event, Probability]):
     else
         val Cstar: Set[Event] = pathSets.maxBy(ps => pathSetProbability(ps, probabilities))
         val b: Event = Cstar.maxBy(probabilities)
-        BinaryDecisionTree.NonLeaf(b, PaDAprob(setsWithoutB(pathSets, b), probabilities), PaDAprob(setsWithBRemoved(pathSets, b), probabilities))
+        BinaryDecisionTree.NonLeaf(b, PaDAprob(setsWithBRemoved(pathSets, b), probabilities), PaDAprob(setsWithoutB(pathSets, b), probabilities))
 }
