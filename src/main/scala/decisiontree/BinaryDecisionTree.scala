@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.collection.immutable.IntMap
 import scala.collection.mutable
 
-type Event = Int
+type Event = String
 
 /** Diagnostic Decision Tree */
 enum BinaryDecisionTree:
@@ -206,7 +206,7 @@ def isPath0(path: Path7): Boolean = path.last == Last.Zero
 def h(path: Path7): Int = path.length - 1
 
 type Probability = Double
-type BasicEvents = IntMap[Probability]
+type BasicEvents = Map[Event, Probability]
 
 def vectorMultiply(one: Seq[Double], two: Seq[Double]): Double =
     one.lazyZip(two).map(_ * _).sum
@@ -347,7 +347,7 @@ object ExampleBDT {
 
         // Figure 5, Example 8.
         val tree2 = b(3, b(1, _0, b(2, _0, _1)), b(2, b(1, _0, _1), _1))
-        val probabilities = IntMap(1 -> 1D/4D, 2 -> 1D/2D, 3 -> 1D/3D)
+        val probabilities = Map("1" -> 1D/4D, "2" -> 1D/2D, "3" -> 1D/3D)
         val (rho, h) = algorithm7(tree2, probabilities)
         println(rho)
         println(h)
@@ -360,23 +360,23 @@ object ExampleBDT {
         println(tau1)
 
         import minimalcutpathset.getProbabilities
-        val testTree = FaultTree(1, Map(
-            1 -> TreeNode.Combination(1, Gate.Or, Set(2, 3)),
-            2 -> TreeNode.Combination(2, Gate.And, Set(4, 5, 6)),
-            3 -> TreeNode.Combination(3, Gate.And, Set(7, 8)),
-            4 -> TreeNode.BasicEvent(4, 0.5),
-            5 -> TreeNode.BasicEvent(5, 0.7),
-            6 -> TreeNode.BasicEvent(6, 0.4),
-            7 -> TreeNode.BasicEvent(7, 0.6),
-            8 -> TreeNode.BasicEvent(8, 0.2)
+        val testTree = FaultTree("1", Map(
+            "1" -> TreeNode.Combination("1", Gate.Or, Set("2", "3")),
+            "2" -> TreeNode.Combination("2", Gate.And, Set("4", "5", "6")),
+            "3" -> TreeNode.Combination("3", Gate.And, Set("7", "8")),
+            "4" -> TreeNode.BasicEvent("4", 0.5),
+            "5" -> TreeNode.BasicEvent("5", 0.7),
+            "6" -> TreeNode.BasicEvent("6", 0.4),
+            "7" -> TreeNode.BasicEvent("7", 0.6),
+            "8" -> TreeNode.BasicEvent("8", 0.2)
         ))
         val basicEvents = getProbabilities(testTree)()
         val (bdt, height) = algorithm8(testTree, basicEvents)
         println(height) // expected: 2.632
     }
 
-    inline def b(id: Event, left: BinaryDecisionTree, right: BinaryDecisionTree): BinaryDecisionTree =
-        BinaryDecisionTree.NonLeaf(id, left, right)
+    inline def b(id: Int, left: BinaryDecisionTree, right: BinaryDecisionTree): BinaryDecisionTree =
+        BinaryDecisionTree.NonLeaf(String.valueOf(id), left, right)
     inline def _0: BinaryDecisionTree = BinaryDecisionTree.Zero
     inline def _1: BinaryDecisionTree = BinaryDecisionTree.One
 }

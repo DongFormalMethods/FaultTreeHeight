@@ -47,7 +47,6 @@ object FT6Repro {
         val treeFT = treeLikeFT.FT
         val (dagTree, probabilities) = Conversion.translateToDagTree(treeFT)
         val dftFile = new File(s"handcreated/${treeLikeFT.name}.dft")
-        val (_, dft2InternalMapping) = DFT.readDFTFile(Source.fromFile(dftFile))
 
         val pathSets = minimalcutpathset.minimalPathSets(dagTree)().toSeq
         println(pathSets)
@@ -56,11 +55,11 @@ object FT6Repro {
 
         val bddFile1 = new File(s"generated/bdd/ft6.1.dot")
         val bdd1 = BDD.readStormSylvanBDDDotFile(bddFile1)
-        val bddProbabilities1 = BDDOrdering.bddProbabilities(dft2InternalMapping, probabilities, bddFile1)
+        val bddProbabilities1 = BDDOrdering.bddProbabilities(probabilities, bddFile1)
 
         val bddFile2 = new File(s"generated/bdd/ft6.2.dot")
         val bdd2 = BDD.readStormSylvanBDDDotFile(bddFile2)
-        val bddProbabilities2 = BDDOrdering.bddProbabilities(dft2InternalMapping, probabilities, bddFile2)
+        val bddProbabilities2 = BDDOrdering.bddProbabilities(probabilities, bddFile2)
 
         val height1 = BDD.height(bdd1, bddProbabilities1)
         val height2 = BDD.height(bdd2, bddProbabilities2)
@@ -83,7 +82,6 @@ object FT4Repro {
         val treeFT = treeLikeFT.FT
         val (dagTree, probabilities) = Conversion.translateToDagTree(treeFT)
         val dftFile = new File(s"handcreated/${treeLikeFT.name}.dft")
-        val (_, dft2InternalMapping) = DFT.readDFTFile(Source.fromFile(dftFile))
 
         val cutSets = minimalcutpathset.minimalCutSets(dagTree)()
         println(cutSets.size)

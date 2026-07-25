@@ -16,10 +16,10 @@ object RandomTrees {
     def makeRandomTree(basicEvents: Int)(using random: RandomGenerator): FaultTree = {
         var id = 0
 
-        def nextId(): Int = {
+        def nextId(): Event = {
             val oldId = id
             id += 1
-            oldId
+            oldId.toString
         }
 
         val basicEventsNodes: Seq[FaultTree.BasicEvent] = for _ <- 0 until basicEvents yield FaultTree.BasicEvent(nextId(), randomProbability())

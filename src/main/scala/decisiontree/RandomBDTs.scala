@@ -19,7 +19,7 @@ object RandomBDTs {
     }
 
     @java.lang.Deprecated // 'ranger' algorithm no longer in paper.
-    def height(events: Set[Event], formula: BooleanFormula, probabilities: IntMap[Probability])(using random: RandomGenerator): (Double, BinaryDecisionTree) = formula match {
+    def height(events: Set[Event], formula: BooleanFormula, probabilities: Map[Event, Probability])(using random: RandomGenerator): (Double, BinaryDecisionTree) = formula match {
         case True => (0D, BinaryDecisionTree.One)
         case False => (0D, BinaryDecisionTree.Zero)
         case _ =>
@@ -40,7 +40,7 @@ object RandomBDTs {
             (hb, bdtB)
     }
 
-    def algorithm13(formula: BooleanFormula, probabilities: IntMap[Probability])(using random: RandomGenerator): Double = {
+    def algorithm13(formula: BooleanFormula, probabilities: Map[Event, Probability])(using random: RandomGenerator): Double = {
         val basicEvents = getBasicEvents(formula)
 
         val (h, bdt) = height(basicEvents, formula, probabilities)
@@ -51,8 +51,8 @@ object RandomBDTs {
     def main(args: Array[String]): Unit = {
         given random: RandomGenerator = new java.util.Random()
 
-        val formula = Or(And(Variable(2), Or(Variable(0), Variable(1))), And(Variable(0), Variable(1)))
-        val probabilities = IntMap(0 -> 1D/2D, 1 -> 1D/2D, 2 -> 1D/2D)
+        val formula = Or(And(Variable("2"), Or(Variable("0"), Variable("1"))), And(Variable("0"), Variable("1")))
+        val probabilities = Map("0" -> 1D/2D, "1" -> 1D/2D, "2" -> 1D/2D)
         val events = getBasicEvents(formula)
 
         val (h, bdt) = height(events, formula, probabilities)

@@ -37,14 +37,16 @@ Frogs,_switches_and_track_appliances, etc.
 
  */
 
+type Event = String
+
 enum BDD:
     case True
     case False
-    case Node(event: Int, /*event fails*/ trueBranch: BDD, /*no failure*/ falseBranch: BDD)
+    case Node(event: Event, /*event fails*/ trueBranch: BDD, /*no failure*/ falseBranch: BDD)
 
 object BDD {
 
-    def height(bdd: BDD, probabilities: IntMap[Double]): Double = bdd match {
+    def height(bdd: BDD, probabilities: Map[Event, Double]): Double = bdd match {
         case BDD.True => 0
         case BDD.False => 0
         case BDD.Node(event, trueBranch, falseBranch) =>
@@ -58,14 +60,14 @@ object BDD {
     // sorted topologically by distance to the top event. See https://github.com/moves-rwth/storm/pull/690
     /** Use [[BDDOrdering.bddProbabilities]] instead. */
     @java.lang.Deprecated
-    def bddProbabilities(dftNodes: Seq[dft.DFTNode]): IntMap[Double] =
-        IntMap.from(dftNodes.collect {
-            case dft.DFTNode.BasicEvent(_, probability) => probability
-        }.zipWithIndex.map { case (prob, idx) => (idx, prob) })
+    def bddProbabilities(dftNodes: Seq[dft.DFTNode]): Map[Event, Double] =
+        Map.from(dftNodes.collect {
+            case dft.DFTNode.BasicEvent(id, probability) => (id, probability)
+        })
 
     def main(args: Array[String]): Unit = {
         val bdd = readStormSylvanBDDDotFile(new File("generated/bdd/AircraftRunwayExcursionAccidents.dot"))
-        val (dftLines, bddIdMapping) = dft.DFT.readDFTFile(Source.fromFile(new File("generated/dft/AircraftRunwayExcursionAccidents.dft")))
+        val dftLines = dft.DFT.readDFTFile(Source.fromFile(new File("generated/dft/AircraftRunwayExcursionAccidents.dft")))
         val probabilities = bddProbabilities(dftLines)
         println(bdd)
         println(height(bdd, probabilities))
@@ -130,6 +132,6 @@ object BDD {
         }
     }
 
-    def getBDDId(node: MutableNode): Int = Integer.parseInt(node.get("label").toString)
+    def getBDDId(node: MutableNode): Event = node.get("label").toString
 
 }

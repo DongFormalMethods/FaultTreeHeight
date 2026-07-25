@@ -2,7 +2,7 @@ package minimalcutpathset
 
 import scala.collection.immutable.IntMap
 
-def pathSetProbability(pathSet: PathSet, probabilities: IntMap[Probability]): Probability =
+def pathSetProbability(pathSet: PathSet, probabilities: Map[Event, Probability]): Probability =
     pathSet.toSeq.map(basicEvent => 1D - probabilities(basicEvent)).product
 
 def height5(faultTree: FaultTree): Double = {
@@ -11,7 +11,7 @@ def height5(faultTree: FaultTree): Double = {
     height5(faultTree, basicEvents, probabilities)
 }
 
-def height5(faultTree: FaultTree, basicEvents: Set[Event], probabilities: IntMap[Probability]): Double = {
+def height5(faultTree: FaultTree, basicEvents: Set[Event], probabilities: Map[Event, Probability]): Double = {
     val pathSets = minimalPathSets(faultTree)(basicEvents)
 
     val (etas, height) = algorithm5(pathSets, probabilities)
@@ -20,7 +20,7 @@ def height5(faultTree: FaultTree, basicEvents: Set[Event], probabilities: IntMap
 }
 
 // paper: 'pase' or 'PaDA'.
-def algorithm5(pathSets: PathSets, basicEvents: IntMap[Probability]): (Etas, Double) = {
+def algorithm5(pathSets: PathSets, basicEvents: Map[Event, Probability]): (Etas, Double) = {
     val n = basicEvents.size
     val Pnil = pathSets
 
@@ -134,15 +134,15 @@ def algorithm5(pathSets: PathSets, basicEvents: IntMap[Probability]): (Etas, Dou
 @main
 def testAlgo5(): Unit = {
     println(height4(
-        FaultTree(1, Map(
-            1 -> TreeNode.Combination(1, Gate.Or, Set(2, 3)),
-            2 -> TreeNode.Combination(2, Gate.And, Set(4, 5, 6)),
-            3 -> TreeNode.Combination(3, Gate.And, Set(7, 8)),
-            4 -> TreeNode.BasicEvent(4, 0.5),
-            5 -> TreeNode.BasicEvent(5, 0.7),
-            6 -> TreeNode.BasicEvent(6, 0.4),
-            7 -> TreeNode.BasicEvent(7, 0.6),
-            8 -> TreeNode.BasicEvent(8, 0.2)
+        FaultTree("1", Map(
+            "1" -> TreeNode.Combination("1", Gate.Or, Set("2", "3")),
+            "2" -> TreeNode.Combination("2", Gate.And, Set("4", "5", "6")),
+            "3" -> TreeNode.Combination("3", Gate.And, Set("7", "8")),
+            "4" -> TreeNode.BasicEvent("4", 0.5),
+            "5" -> TreeNode.BasicEvent("5", 0.7),
+            "6" -> TreeNode.BasicEvent("6", 0.4),
+            "7" -> TreeNode.BasicEvent("7", 0.6),
+            "8" -> TreeNode.BasicEvent("8", 0.2)
         ))
     ))  // expected: 2.632
 }

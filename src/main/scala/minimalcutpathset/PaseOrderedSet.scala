@@ -1,13 +1,11 @@
 package minimalcutpathset
 
-import scala.collection.immutable.IntMap
-
 object PaseOrderedSet {
 
-    def pathSetProbability(pathSet: PathSet, probabilities: IntMap[Probability]): Probability =
+    def pathSetProbability(pathSet: PathSet, probabilities: Map[Event, Probability]): Probability =
         pathSet.toSeq.map(basicEvent => 1D - probabilities(basicEvent)).product
 
-    def getSmallestPathSetWithHighestProbability(pathSets: PathSets, probabilities: IntMap[Probability]): (PathSet, Probability) = {
+    def getSmallestPathSetWithHighestProbability(pathSets: PathSets, probabilities: Map[Event, Probability]): (PathSet, Probability) = {
         val pathSetsSeq = pathSets.toSeq
         LazyList.from(pathSetsSeq)
             .zip(LazyList.from(pathSetsSeq).map(ps => pathSetProbability(ps, probabilities)))
@@ -23,7 +21,7 @@ object PaseOrderedSet {
         paseOrderedSet(faultTree, basicEvents, probabilities)
     }
 
-    def paseOrderedSet(faultTree: FaultTree, basicEvents: Set[Event], probabilities: IntMap[Probability]): Double = {
+    def paseOrderedSet(faultTree: FaultTree, basicEvents: Set[Event], probabilities: Map[Event, Probability]): Double = {
         val pathSets = minimalPathSets(faultTree)(basicEvents)
 
         val (etas, height) = paseOrderedSet(pathSets, probabilities)
@@ -32,7 +30,7 @@ object PaseOrderedSet {
     }
 
     // paper: 'pase' or 'PaDA'.
-    def paseOrderedSet(pathSets: PathSets, basicEvents: IntMap[Probability]): (Etas, Double) = {
+    def paseOrderedSet(pathSets: PathSets, basicEvents: Map[Event, Probability]): (Etas, Double) = {
         val n = basicEvents.size
         val Pnil = pathSets
 

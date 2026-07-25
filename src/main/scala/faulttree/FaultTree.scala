@@ -5,7 +5,7 @@ import scala.collection.mutable
 type Probability = Double
 type Real = Double
 
-type Event = Int
+type Event = String
 
 /** A Tree-like Fault Tree. */
 enum FaultTree(val event: Event):
@@ -164,24 +164,24 @@ def height(tree: FaultTree, layers: IArray[Seq[FaultTree]]): Real = {
 
 @main def main(): Unit = {
     // 2.35
-    val tree = FaultTree.AndEvent('g', Seq(
-        FaultTree.OrEvent('e', Seq(
-            FaultTree.BasicEvent('a', 1D/2D),
-            FaultTree.BasicEvent('b', 1D/3D)
+    val tree = FaultTree.AndEvent("g", Seq(
+        FaultTree.OrEvent("e", Seq(
+            FaultTree.BasicEvent("a", 1D/2D),
+            FaultTree.BasicEvent("b", 1D/3D)
         )),
-        FaultTree.OrEvent('f', Seq(
-            FaultTree.BasicEvent('c', 1D/4D),
-            FaultTree.BasicEvent('d', 1D/5D)
+        FaultTree.OrEvent("f", Seq(
+            FaultTree.BasicEvent("c", 1D/4D),
+            FaultTree.BasicEvent("d", 1D/5D)
         ))
     ))
 
     // 1.375
-//    val tree = FaultTree.AndEvent('a', Seq(
-//        FaultTree.OrEvent('o', Seq(
-//            FaultTree.BasicEvent(0, 1D/2D),
-//            FaultTree.BasicEvent(1, 1D/3D)
+//    val tree = FaultTree.AndEvent("a", Seq(
+//        FaultTree.OrEvent("o", Seq(
+//            FaultTree.BasicEvent("0", 1D/2D),
+//            FaultTree.BasicEvent("1", 1D/3D)
 //        )),
-//        FaultTree.BasicEvent(2, 1D/4D)
+//        FaultTree.BasicEvent("2", 1D/4D)
 //    ))
 
     //println(height(tree))
@@ -189,50 +189,50 @@ def height(tree: FaultTree, layers: IArray[Seq[FaultTree]]): Real = {
     println(height(problematicTree))
 }
 
-val problematicTree: FaultTree = FaultTree.AndEvent(0, Seq(
-    FaultTree.OrEvent(1, Seq(
-        FaultTree.AndEvent(2, Seq(
-            FaultTree.BasicEvent(3, 1D/3D),
-            FaultTree.BasicEvent(4, 1D/4D)
+val problematicTree: FaultTree = FaultTree.AndEvent("0", Seq(
+    FaultTree.OrEvent("1", Seq(
+        FaultTree.AndEvent("2", Seq(
+            FaultTree.BasicEvent("3", 1D/3D),
+            FaultTree.BasicEvent("4", 1D/4D)
         )),
-        FaultTree.OrEvent(5, Seq(
-            FaultTree.BasicEvent(6, 1D/6D),
-            FaultTree.BasicEvent(7, 1D/7D)
+        FaultTree.OrEvent("5", Seq(
+            FaultTree.BasicEvent("6", 1D/6D),
+            FaultTree.BasicEvent("7", 1D/7D)
         ))
     )),
-    FaultTree.AndEvent(8, Seq(
-        FaultTree.OrEvent(9, Seq(
-            FaultTree.BasicEvent(10, 1D/10D),
-            FaultTree.BasicEvent(11, 1D/11D)
+    FaultTree.AndEvent("8", Seq(
+        FaultTree.OrEvent("9", Seq(
+            FaultTree.BasicEvent("10", 1D/10D),
+            FaultTree.BasicEvent("11", 1D/11D)
         )),
-        FaultTree.AndEvent(12, Seq(
-            FaultTree.BasicEvent(13, 1D/13D),
-            FaultTree.BasicEvent(14, 1D/14D)
+        FaultTree.AndEvent("12", Seq(
+            FaultTree.BasicEvent("13", 1D/13D),
+            FaultTree.BasicEvent("14", 1D/14D)
         ))
     ))
 ))
 
-val anotherTree = FaultTree.OrEvent(0, Seq(
-    FaultTree.BasicEvent(1, 2D/3D),
-    FaultTree.AndEvent(2, Seq(
-        FaultTree.BasicEvent(3, 1D/4D),
-        FaultTree.OrEvent(4, Seq(
-            FaultTree.BasicEvent(5, 1D/3D),
-            FaultTree.BasicEvent(6, 1D/2D)
+val anotherTree = FaultTree.OrEvent("0", Seq(
+    FaultTree.BasicEvent("1", 2D/3D),
+    FaultTree.AndEvent("2", Seq(
+        FaultTree.BasicEvent("3", 1D/4D),
+        FaultTree.OrEvent("4", Seq(
+            FaultTree.BasicEvent("5", 1D/3D),
+            FaultTree.BasicEvent("6", 1D/2D)
         ))
     ))
 ))
 
-val reproTree = FaultTree.OrEvent(0,Vector(
-    FaultTree.BasicEvent(1,0.43227359997383685),
-    FaultTree.AndEvent(2,Vector(
-        FaultTree.BasicEvent(3,0.852759862927743),
-        FaultTree.BasicEvent(4,0.37254938544467475),
-        FaultTree.BasicEvent(5,0.22111687978494943)
+val reproTree = FaultTree.OrEvent("0",Vector(
+    FaultTree.BasicEvent("1",0.43227359997383685),
+    FaultTree.AndEvent("2",Vector(
+        FaultTree.BasicEvent("3",0.852759862927743),
+        FaultTree.BasicEvent("4",0.37254938544467475),
+        FaultTree.BasicEvent("5",0.22111687978494943)
     )),
-    FaultTree.AndEvent(6,Vector(
-        FaultTree.BasicEvent(7,0.7801324848806612),
-        FaultTree.BasicEvent(8,0.9046625728136396),
-        FaultTree.BasicEvent(9,0.9067115560033326)
+    FaultTree.AndEvent("6",Vector(
+        FaultTree.BasicEvent("7",0.7801324848806612),
+        FaultTree.BasicEvent("8",0.9046625728136396),
+        FaultTree.BasicEvent("9",0.9067115560033326)
     ))
 ))

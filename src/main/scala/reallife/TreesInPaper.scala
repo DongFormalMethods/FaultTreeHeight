@@ -95,8 +95,8 @@ object TreesInPaper {
         val bddFile = new File(s"generated/bdd/${treeLikeFT.name}.dot")
         val dftFile = new File(s"handcreated/${treeLikeFT.name}.dft")
         val bdd = BDD.readStormSylvanBDDDotFile(bddFile)
-        val (dftLines, dft2InternalMapping) = DFT.readDFTFile(Source.fromFile(dftFile))
-        val bddProbabilities = BDDOrdering.bddProbabilities(dft2InternalMapping, probabilities, bddFile)
+        val dftLines = DFT.readDFTFile(Source.fromFile(dftFile))
+        val bddProbabilities = BDDOrdering.bddProbabilities(probabilities, bddFile)
 
         println("Flattening tree for recursive algorithm...")
         val flattenedTree = faulttree.flatten(treeFT)
@@ -171,8 +171,8 @@ object TreesInPaper {
         val bddFile = new File(s"generated/bdd/${dagLikeFT.name}.dot")
         val dftFile = new File(s"handcreated/${dagLikeFT.name}.dft")
         val bdd = BDD.readStormSylvanBDDDotFile(bddFile)
-        val (dftLines, dft2InternalMapping) = DFT.readDFTFile(Source.fromFile(dftFile))
-        val bddProbabilities = BDDOrdering.bddProbabilities(dft2InternalMapping, probabilities, bddFile)
+        val dftLines = DFT.readDFTFile(Source.fromFile(dftFile))
+        val bddProbabilities = BDDOrdering.bddProbabilities(probabilities, bddFile)
 
 
         println("Flattening tree for recursive algorithm")
