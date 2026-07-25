@@ -50,11 +50,13 @@ object Main {
             case Algorithm.Buda =>
                 decisiontree.algorithm8(tree)._1
             case Algorithm.Cuda /*prob variant*/ =>
-                val (etas, height) = minimalcutpathset.algorithm4(tree)
-                etasToBinaryDecisionTree(etas)
+//                val (etas, height) = minimalcutpathset.algorithm4(tree)
+//                etasToBinaryDecisionTree(etas)
+                minimalcutpathset.CuDAProb(tree)
             case Algorithm.Pada /*prob variant*/ =>
-                val (etas, height) = minimalcutpathset.algorithm5(tree)
-                etasToBinaryDecisionTree(etas)
+//                val (etas, height) = minimalcutpathset.algorithm5(tree)
+//                etasToBinaryDecisionTree(etas)
+                minimalcutpathset.PaDAprob(tree)
         }
     }
 
@@ -86,6 +88,7 @@ object Main {
             diagnosticDecisionTree = insertLeaf(diagnosticDecisionTree, path, eta)
         }
 
+        //diagnosticDecisionTree // contains duplicate vertices in paths..
         decisiontree.algorithm6(diagnosticDecisionTree)
     }
 }
