@@ -17,7 +17,7 @@ object DDTViz {
         graph.setDirected(true)
         graph.graphAttrs().add(Rank.dir(Rank.RankDir.TOP_TO_BOTTOM))
 
-        def recurse(previousIds: Seq[Event], tree: BinaryDecisionTree): MutableNode = {
+        def recurse(previousIds: Seq[Event | Boolean], tree: BinaryDecisionTree): MutableNode = {
             val v = tree match {
                 case BinaryDecisionTree.Zero =>
                     val nodeId = previousIds.mkString("", "__", "__0")
@@ -37,12 +37,12 @@ object DDTViz {
                     vertex.add(Label.of(id))
                     vertex.add(Shape.ELLIPSE)
                     graph.add(vertex)
-                    val leftNode = recurse(previousIds :+ id, left)
-                    val rightNode = recurse(previousIds :+ id, right)
+                    val leftNode = recurse(previousIds :+ id :+ false, left)
+                    val rightNode = recurse(previousIds :+ id :+ true, right)
 
-                    val leftLink = vertex.linkTo(leftNode).`with`(Style.DASHED)     // basic event with 'id' failed
+                    val leftLink = vertex.linkTo(leftNode).`with`(Style.DASHED)     // basic event with 'id' is operating
                     vertex.addLink(leftLink)
-                    val rightLink = vertex.linkTo(rightNode).`with`(Style.SOLID)    // basic event with 'id' is operating
+                    val rightLink = vertex.linkTo(rightNode).`with`(Style.SOLID)    // basic event with 'id' failed
                     vertex.addLink(rightLink)
 
                     vertex
