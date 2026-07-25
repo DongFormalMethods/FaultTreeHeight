@@ -3,7 +3,6 @@ package bdd
 import dft.DFT
 
 import java.io.{BufferedReader, File, FileReader}
-import scala.collection.immutable.IntMap
 import scala.io.Source
 
 object BDDOrdering {

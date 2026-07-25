@@ -4,7 +4,6 @@ import minimalcutpathset.{MinceNormalised, MinceOrderedSet, PaseNormalised, Pase
 import org.openjdk.jmh.annotations.{Benchmark, BenchmarkMode, Fork, Mode, OutputTimeUnit, Scope, Setup, State}
 
 import java.util.concurrent.TimeUnit
-import scala.collection.immutable.IntMap
 import scala.compiletime.uninitialized
 
 @State(Scope.Thread)

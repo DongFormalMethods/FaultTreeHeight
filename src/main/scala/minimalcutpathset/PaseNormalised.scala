@@ -1,7 +1,5 @@
 package minimalcutpathset
 
-import scala.collection.immutable.IntMap
-
 object PaseNormalised {
 
     def pathSetProbability(pathSet: PathSet, probabilities: Map[Event, Probability]): Probability =

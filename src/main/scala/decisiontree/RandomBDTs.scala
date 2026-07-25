@@ -1,7 +1,6 @@
 package decisiontree
 
 import java.util.random.RandomGenerator
-import scala.collection.immutable.IntMap
 
 object RandomBDTs {
     import BooleanFormula.*

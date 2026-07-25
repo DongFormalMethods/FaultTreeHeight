@@ -1,7 +1,6 @@
 package decisiontree
 
 import scala.annotation.tailrec
-import scala.collection.immutable.IntMap
 import scala.collection.mutable
 
 type Event = String

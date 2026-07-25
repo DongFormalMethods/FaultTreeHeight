@@ -7,8 +7,6 @@ import dft.DFT
 import minimalcutpathset.FaultTree
 import viz.DDTViz
 
-import scala.annotation.tailrec
-
 object Main {
 
     // TODO: convert fault-tree to decision tree.

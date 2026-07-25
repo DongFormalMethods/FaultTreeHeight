@@ -4,7 +4,6 @@ import guru.nidi.graphviz.model.{Link, MutableGraph, MutableNode}
 import guru.nidi.graphviz.parse.Parser
 
 import java.io.File
-import scala.collection.immutable.IntMap
 import scala.collection.mutable
 import scala.io.Source
 

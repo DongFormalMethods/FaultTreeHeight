@@ -2,8 +2,6 @@ package minimalcutpathset
 
 import benchmark.Conversion
 
-import scala.collection.immutable.IntMap
-
 object MinceNormalised {
 
     def cutSetProbability(cutSet: CutSet, probabilities: Map[Event, Probability]): Probability =

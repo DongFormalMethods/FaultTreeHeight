@@ -1,7 +1,5 @@
 package benchmark
 
-import scala.collection.immutable.IntMap
-
 object Conversion {
 
     def translateToDFT(tree: faulttree.FaultTree): Seq[dft.DFTNode] = {

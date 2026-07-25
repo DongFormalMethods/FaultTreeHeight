@@ -3,8 +3,6 @@ package dft
 import benchmark.Conversion
 
 import java.io.{BufferedWriter, File, FileWriter}
-import scala.collection.immutable.IntMap
-import scala.collection.mutable
 import scala.io.Source
 
 enum DFTNode:

@@ -11,7 +11,6 @@ enum BooleanFormula:
 
 import BooleanFormula.*
 
-import scala.collection.immutable.IntMap
 import scala.collection.mutable
 
 def computeLookupById()(lookup: BooleanFormula, variableId: Id): Boolean = {

@@ -7,7 +7,6 @@ import dft.DFT
 
 import java.io.File
 import java.util.random.RandomGenerator
-import scala.collection.immutable.IntMap
 import scala.io.Source
 
 trait SimpleFaultTree {

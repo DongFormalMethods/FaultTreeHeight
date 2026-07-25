@@ -3,7 +3,6 @@ package minimalcutpathset
 import minimalcutpathset.TreeNode.Combination
 import reallife.T0Chopper
 
-import scala.collection.immutable.IntMap
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.given
 import scala.util.boundary
