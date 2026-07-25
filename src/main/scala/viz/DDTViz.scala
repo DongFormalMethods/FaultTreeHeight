@@ -11,7 +11,7 @@ import java.nio.file.Path
 object DDTViz {
 
     def toGraphViz(diagnosticDecisionTree: BinaryDecisionTree): MutableGraph = {
-        // TODO: can we make the format similar to Storms?
+        // TODO: can we make the format similar to Storm's? Perhaps our own output is better.
 
         val graph = Factory.mutGraph()
         graph.setDirected(true)
@@ -34,9 +34,9 @@ object DDTViz {
                     val leftNode = recurse(left)
                     val rightNode = recurse(right)
 
-                    val leftLink = vertex.linkTo(leftNode).`with`(Style.DASHED)
+                    val leftLink = vertex.linkTo(leftNode).`with`(Style.DASHED)     // TODO is this correct? is the left side always the 'false'/'0' branch?
                     vertex.addLink(leftLink)
-                    val rightLink = vertex.linkTo(rightNode).`with`(Style.SOLID)
+                    val rightLink = vertex.linkTo(rightNode).`with`(Style.SOLID)    // TODO is this correct? is the right side always the 'true'/'1' branch?
                     vertex.addLink(rightLink)
 
                     vertex
