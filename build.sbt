@@ -28,13 +28,15 @@ Jmh / javaOptions ++= Seq(
 lazy val root = (project in file("."))
   .settings(
     name := "FaultTreeHeight",
-    assembly / assemblyJarName := "FaultTreeHeight.jar"
+    assembly / assemblyJarName := "FaultTreeHeight.jar",
+    assembly / mainClass := Some("main.Main"),
   )
 
 // structured concurrency api
 javacOptions ++= Seq("--release", "23", "--enable-preview")
 javaOptions += "--enable-preview"
 
-ThisBuild / assemblyMergeStrategy := {
-    _ => MergeStrategy.preferProject
+assembly / assemblyMergeStrategy := {
+    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+    case _ => MergeStrategy.preferProject
 }
