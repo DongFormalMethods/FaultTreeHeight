@@ -1,7 +1,5 @@
 package minimalcutpathset
 
-import scala.collection.immutable.IntMap
-
 def cutSetProbability(cutSet: CutSet, probabilities: Map[Event, Probability]): Probability =
     cutSet.toSeq.map(basicEvent => probabilities(basicEvent)).product
 

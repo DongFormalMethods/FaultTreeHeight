@@ -184,6 +184,7 @@ def cleanupLeaves(bdt: BinaryDecisionTree): BinaryDecisionTree = {
         case _ => bdt
 }
 
+/** Eliminates branches from the tree with nodes that were already encountered higher up in the tree. */
 def algorithm6(bdt: BinaryDecisionTree): BinaryDecisionTree =
     cleanupLeaves(eliminateRepeatedly(bdt))
 

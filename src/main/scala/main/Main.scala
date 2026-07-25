@@ -59,96 +59,36 @@ object Main {
     }
 
     private def etasToBinaryDecisionTree(etas: minimalcutpathset.Etas): BinaryDecisionTree = {
+        import minimalcutpathset.{Eta, Etas, Path, Decision, Event}
+
         val etasByLength = etas.toSeq.sortBy((p, eta) => p.size)
+        etasByLength.foreach(println)
         println()
 
-        import minimalcutpathset.{Eta, Etas, Path, Decision, Event}
-        class MutNode {
-            var value: Eta | Null = null
-            var falseBranch: 0 | MutNode = 0
-            var trueBranch: 1 | MutNode = 1
+        def etaToDiagnosticDecisionTree(eta: Eta): BinaryDecisionTree = eta match {
+            case Decision.One => BinaryDecisionTree.One
+            case Decision.Zero => BinaryDecisionTree.Zero
+            case event: Event => BinaryDecisionTree.NonLeaf(event, BinaryDecisionTree.Zero, BinaryDecisionTree.One)
+        }
 
-            override def toString: String = s"MutNode(value=${value}, falseBranch=${falseBranch}, trueBranch=${trueBranch})"
-
-            def prettyPrint(): Unit = {
-                prettyPrint(0)
+        def insertLeaf(binaryDecisionTree: BinaryDecisionTree, path: Path, eta: Eta): BinaryDecisionTree = path match {
+            case Nil => etaToDiagnosticDecisionTree(eta)
+            case Decision.Zero +: tail => binaryDecisionTree match {
+                case BinaryDecisionTree.Zero | BinaryDecisionTree.One => binaryDecisionTree // cannot insert after Zero or One.
+                case BinaryDecisionTree.NonLeaf(id, left, right) => BinaryDecisionTree.NonLeaf(id, insertLeaf(left, tail, eta), right)
             }
-
-            private def prettyPrint(indent: Int): Unit = {
-                println(" ".repeat(indent).concat(String.valueOf(value)))
-                falseBranch match {
-                    case 0: 0 => println(" ".repeat(indent).concat("0"))
-                    case node: MutNode => node.prettyPrint(indent + 2)
-                }
-                trueBranch match {
-                    case 1: 1 => println(" ".repeat(indent).concat("1"))
-                    case node: MutNode => node.prettyPrint(indent + 2)
-                }
+            case Decision.One +: tail => binaryDecisionTree match {
+                case BinaryDecisionTree.Zero | BinaryDecisionTree.One => binaryDecisionTree // cannot insert after Zero or One.
+                case BinaryDecisionTree.NonLeaf(id, left, right) => BinaryDecisionTree.NonLeaf(id, left, insertLeaf(right, tail, eta))
             }
         }
 
-        val root: MutNode = new MutNode()
-
-        @tailrec
-        def insert(node: MutNode, path: Path, eta: Eta): Unit = {
-            if (path.isEmpty) {
-                assert(node.value == null, s"overwriting existing node value, ${node.value} with ${eta}.")
-                node.value = eta
-            } else {
-                val head +: tail = path: @unchecked // safe because of !path.isEmpty
-                head match {
-                    case Decision.Zero =>
-                        node.value match {
-                            case null | Decision.One | Decision.Zero => // do nothing
-                            case event: Event =>
-                                val falseBranch = new MutNode()
-                                node.falseBranch = falseBranch
-                                insert(falseBranch, tail, eta)
-                        }
-                    case Decision.One =>
-                        node.value match {
-                            case null | Decision.One | Decision.Zero => // do nothing
-                            case event: Event =>
-                                val trueBranch = new MutNode()
-                                node.trueBranch = trueBranch
-                                insert(trueBranch, tail, eta)
-                        }
-                }
-            }
-        }
-
-//        var rounds = 0          // TODO remove debug
-//        val maxRounds = 10      // TODO remove debug
+        var diagnosticDecisionTree: BinaryDecisionTree = null;
 
         for ((path, eta) <- etasByLength) {
-//            rounds += 1         // TODO remove debug
-            insert(root, path, eta)
-
-//            println((path, eta))
-//            root.prettyPrint()
-//            println()
-//            println()
-
-//            if (rounds > maxRounds) throw new RuntimeException("Boom!") // TODO remove debug
+            diagnosticDecisionTree = insertLeaf(diagnosticDecisionTree, path, eta)
         }
 
-        println(root)   // TODO why do we have intermediate nodes with value == null ?
-//        root.prettyPrint()
-
-        def toDiagnosticDecisionTree(node: MutNode): BinaryDecisionTree = {
-            node.value match
-                case Decision.Zero => BinaryDecisionTree.Zero
-                case Decision.One => BinaryDecisionTree.One
-                case event: Event =>
-                    val left = node.falseBranch match
-                        case 0: 0 => BinaryDecisionTree.Zero
-                        case leftChild: MutNode => toDiagnosticDecisionTree(leftChild)
-                    val right = node.trueBranch match
-                        case 1: 1 => BinaryDecisionTree.One
-                        case rightChild: MutNode => toDiagnosticDecisionTree(rightChild)
-                    BinaryDecisionTree.NonLeaf(event, left, right)
-        }
-
-        toDiagnosticDecisionTree(root)
+        decisiontree.algorithm6(diagnosticDecisionTree)
     }
 }

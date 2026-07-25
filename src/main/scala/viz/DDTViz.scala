@@ -1,7 +1,7 @@
 package viz
 
 import decisiontree.BinaryDecisionTree
-import guru.nidi.graphviz.attribute.{Rank, Shape, Style}
+import guru.nidi.graphviz.attribute.{Label, Rank, Shape, Style}
 import guru.nidi.graphviz.engine.{Format, Graphviz}
 import guru.nidi.graphviz.model.{Factory, MutableGraph, MutableNode}
 
@@ -17,22 +17,28 @@ object DDTViz {
         graph.setDirected(true)
         graph.graphAttrs().add(Rank.dir(Rank.RankDir.TOP_TO_BOTTOM))
 
-        def recurse(tree: BinaryDecisionTree): MutableNode = {
+        def recurse(previousIds: Seq[Event], tree: BinaryDecisionTree): MutableNode = {
             val v = tree match {
                 case BinaryDecisionTree.Zero =>
-                    val vertex = Factory.mutNode("0")
+                    val nodeId = previousIds.mkString("", "__", "__0")
+                    val vertex = Factory.mutNode(nodeId)
+                    vertex.add(Label.of("0"))
                     vertex.add(Shape.BOX)
                     vertex
                 case BinaryDecisionTree.One =>
-                    val vertex = Factory.mutNode("1")
+                    val nodeId = previousIds.mkString("", "__", "__1")
+                    val vertex = Factory.mutNode(nodeId)
+                    vertex.add(Label.of("1"))
                     vertex.add(Shape.BOX)
                     vertex
                 case BinaryDecisionTree.NonLeaf(id: Event, left: BinaryDecisionTree, right: BinaryDecisionTree) =>
-                    val vertex = Factory.mutNode(String.valueOf(id))
+                    val nodeId = (previousIds :+ id).mkString("__")
+                    val vertex = Factory.mutNode(nodeId)
+                    vertex.add(Label.of(id))
                     vertex.add(Shape.ELLIPSE)
                     graph.add(vertex)
-                    val leftNode = recurse(left)
-                    val rightNode = recurse(right)
+                    val leftNode = recurse(previousIds :+ id, left)
+                    val rightNode = recurse(previousIds :+ id, right)
 
                     val leftLink = vertex.linkTo(leftNode).`with`(Style.DASHED)     // basic event with 'id' failed
                     vertex.addLink(leftLink)
@@ -45,7 +51,7 @@ object DDTViz {
             v
         }
 
-        recurse(diagnosticDecisionTree)
+        recurse(IndexedSeq(), diagnosticDecisionTree)
 
         graph
     }
