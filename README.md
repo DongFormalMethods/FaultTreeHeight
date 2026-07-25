@@ -37,3 +37,10 @@ Execute `sbt jmh:run` from a terminal.
 <br>
 Note that this operation can take up to 10 hours.
 To reduce the benchmark execution time, uncomment the @Fork annotation on the RealWorldFaultTreesBenchmark class in Benchmark.scala.
+
+## Converting your own Galileo .dft files to Diagnostic Decision Trees
+1. Compile the project to a .jar file, such that it can be executed standalone: `sbt assembly`
+2. Find the generated artefact on your filesystem: `./target/scala-3.3.8/FaultTreeHeight.jar`
+3. Execute it at your leisure; `java -jar FaultTreeHeight.jar --input MyFaultTree.dft --output MyFaultTree.dot --algorithm Buda`.
+This will create a GraphViz .dot file, which can be rendered into an image, or analysed by other tooling.
+See `java -jar FaultTreeHeight --help` for commandline options help.
