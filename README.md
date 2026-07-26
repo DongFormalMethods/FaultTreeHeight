@@ -9,6 +9,15 @@ For VSCode, ensure the [Scala/Metals](https://scalameta.org/metals/docs/editors/
 Your IDE should now recognise this project as an [SBT](https://www.scala-sbt.org/) project.
 Depending on your IDE/Editor setup, you should also install SBT itself on your operating system.
 
+## Convert Fault Trees to Diagnostic Decision Trees
+
+1. Obtain the `FaultTreeHeight.jar` artefact; either by downloading it from [GitHub Releases](https://github.com/DongFormalMethods/FaultTreeHeight/releases),
+   or by compiling it locally using `sbt assembly`. If compiling locally, the output file will be created at `./target/scala-3.3.8/FaultTreeHeight.jar`.
+2. Execute it at your leisure; `java -jar FaultTreeHeight.jar --input MyFaultTree.dft --output MyFaultTree.dot --algorithm Buda`.
+   This will create a GraphViz .dot file, which can be rendered into an image, or analysed by other tooling.
+   The input file must be a .dft file in Galileo format.
+   See `java -jar FaultTreeHeight --help` for commandline options help.
+
 ## Project setup
 
 - DecisionTree.scala: contains the exact height calculation for boolean formulae (Eminent/EDA).
@@ -37,10 +46,3 @@ Execute `sbt jmh:run` from a terminal.
 <br>
 Note that this operation can take up to 10 hours.
 To reduce the benchmark execution time, uncomment the @Fork annotation on the RealWorldFaultTreesBenchmark class in Benchmark.scala.
-
-## Converting your own Galileo .dft files to Diagnostic Decision Trees
-1. Obtain the `FaultTreeHeight.jar` artefact; either by downloading it from [GitHub Releases](https://github.com/DongFormalMethods/FaultTreeHeight/releases),
-or by compiling it locally using `sbt assembly`. If compiling locally, the output file will be created at `./target/scala-3.3.8/FaultTreeHeight.jar`.
-2. Execute it at your leisure; `java -jar FaultTreeHeight.jar --input MyFaultTree.dft --output MyFaultTree.dot --algorithm Buda`.
-This will create a GraphViz .dot file, which can be rendered into an image, or analysed by other tooling.
-See `java -jar FaultTreeHeight --help` for commandline options help.
