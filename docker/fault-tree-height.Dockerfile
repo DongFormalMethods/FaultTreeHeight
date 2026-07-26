@@ -57,7 +57,7 @@ ENV PATH="${SBT_DIR}/bin:${PATH}"
 RUN sbt --version
 
 # Install Storm (remove -DSTROM_PORTABLE=ON to enable usage of CPU extensions, for possibly better performance).
-RUN git clone -b feature/time-bdd-conversion https://github.com/Jankoekenpan/storm.git $STORM_DIR \
+RUN git clone -b feature/time-bdd-conversion https://github.com/DongFormalMethods/storm.git $STORM_DIR \
     && cd $STORM_DIR \
     && mkdir build \
     && cd build \
@@ -65,7 +65,7 @@ RUN git clone -b feature/time-bdd-conversion https://github.com/Jankoekenpan/sto
     && make
 
 # Install FaultTreeHeight
-RUN git clone https://github.com/Jankoekenpan/FaultTreeHeight.git ${FAULT_TREE_HEIGHT_DIR}
+RUN git clone https://github.com/DongFormalMethods/FaultTreeHeight.git ${FAULT_TREE_HEIGHT_DIR}
 
 RUN cd ${FAULT_TREE_HEIGHT_DIR} \
 	&& sbt compile
