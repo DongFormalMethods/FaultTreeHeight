@@ -1,7 +1,5 @@
 package benchmark
 
-import scala.collection.immutable.IntMap
-
 object Conversion {
 
     def translateToDFT(tree: faulttree.FaultTree): Seq[dft.DFTNode] = {
@@ -19,7 +17,7 @@ object Conversion {
 
     def translateToDFT(tree: minimalcutpathset.FaultTree): Seq[dft.DFTNode] = {
 
-        def translateToDFTNonTop(events: Map[Int, minimalcutpathset.TreeNode]): Seq[dft.DFTNode] = {
+        def translateToDFTNonTop(events: Map[minimalcutpathset.Event, minimalcutpathset.TreeNode]): Seq[dft.DFTNode] = {
             events.values.map {
                 case minimalcutpathset.TreeNode.BasicEvent(id, probability) =>
                     dft.DFTNode.BasicEvent(id, probability)
@@ -37,9 +35,9 @@ object Conversion {
         translateToTreeLikeFaultTree(translateToDagTree(dftNodes))
 
     def translateToDagTree(dftNodes: Seq[dft.DFTNode]): minimalcutpathset.FaultTree = {
-        val mapBuilder = Map.newBuilder[Int, minimalcutpathset.TreeNode]
+        val mapBuilder = Map.newBuilder[minimalcutpathset.Event, minimalcutpathset.TreeNode]
 
-        var top: Int | Null = null
+        var top: minimalcutpathset.Event | Null = null
 
         for node <- dftNodes do
             node match
@@ -54,12 +52,12 @@ object Conversion {
             end match
         end for
 
-        minimalcutpathset.FaultTree(top.asInstanceOf[Int], mapBuilder.result())
+        minimalcutpathset.FaultTree(top.asInstanceOf[minimalcutpathset.Event], mapBuilder.result())
     }
 
-    def translateToDagTree(tree: faulttree.FaultTree): (minimalcutpathset.FaultTree, IntMap[Double]) = {
-        val eventsBuilder = scala.collection.immutable.Map.newBuilder[Int, minimalcutpathset.TreeNode]
-        val probabilities = IntMap.newBuilder[Double]
+    def translateToDagTree(tree: faulttree.FaultTree): (minimalcutpathset.FaultTree, Map[minimalcutpathset.Event, Double]) = {
+        val eventsBuilder = Map.newBuilder[minimalcutpathset.Event, minimalcutpathset.TreeNode]
+        val probabilities = Map.newBuilder[minimalcutpathset.Event, Double]
 
         def translateToTree(tree: faulttree.FaultTree): minimalcutpathset.TreeNode = {
             val treeNode = tree match
@@ -103,11 +101,11 @@ object Conversion {
         recur(dagFT.topNode)
     }
 
-    def translateToBooleanFormula(dagFT: minimalcutpathset.FaultTree): (decisiontree.BooleanFormula, IntMap[Double]) =
+    def translateToBooleanFormula(dagFT: minimalcutpathset.FaultTree): (decisiontree.BooleanFormula, Map[faulttree.Event, Double]) =
         translateToBooleanFormula(translateToTreeLikeFaultTree(dagFT))
 
-    def translateToBooleanFormula(faultTree: faulttree.FaultTree): (decisiontree.BooleanFormula, IntMap[Double]) = {
-        val probabilities = new scala.collection.mutable.HashMap[Int, Double]()
+    def translateToBooleanFormula(faultTree: faulttree.FaultTree): (decisiontree.BooleanFormula, Map[faulttree.Event, Double]) = {
+        val probabilities = new scala.collection.mutable.HashMap[faulttree.Event, Double]()
 
         def matchTree(faultTree: faulttree.FaultTree): decisiontree.BooleanFormula = {
             faultTree match
@@ -120,7 +118,7 @@ object Conversion {
                     createBalancedOr(children.map(matchTree))
         }
 
-        (matchTree(faultTree), IntMap.from(probabilities))
+        (matchTree(faultTree), probabilities.toMap)
     }
 
     def createBalancedOr(children: Seq[decisiontree.BooleanFormula]): decisiontree.BooleanFormula = children match {
@@ -149,16 +147,16 @@ object Conversion {
         import minimalcutpathset.{FaultTree, TreeNode, Gate}
         import decisiontree.BooleanFormula.*
 
-        val dagTree = FaultTree(8, Map(
-            8 -> TreeNode.Combination(8, Gate.And, Set(3, 0, 2, 6, 7)),
-            7 -> TreeNode.Combination(7, Gate.And, Set(0, 2)),
-            6 -> TreeNode.Combination(6, Gate.And, Set(3, 0)),
-            5 -> TreeNode.Combination(5, Gate.Or, Set(2)),
-            4 -> TreeNode.Combination(4, Gate.And, Set(0)),
-            3 -> TreeNode.Combination(3, Gate.Or, Set(1, 2)),
-            2 -> TreeNode.BasicEvent(2, 0.3),
-            1 -> TreeNode.BasicEvent(1, 0.2),
-            0 -> TreeNode.BasicEvent(0, 0.1)
+        val dagTree = FaultTree("8", Map(
+            "8" -> TreeNode.Combination("8", Gate.And, Set("3", "0", "2", "6", "7")),
+            "7" -> TreeNode.Combination("7", Gate.And, Set("0", "2")),
+            "6" -> TreeNode.Combination("6", Gate.And, Set("3", "0")),
+            "5" -> TreeNode.Combination("5", Gate.Or, Set("2")),
+            "4" -> TreeNode.Combination("4", Gate.And, Set("0")),
+            "3" -> TreeNode.Combination("3", Gate.Or, Set("1", "2")),
+            "2" -> TreeNode.BasicEvent("2", 0.3),
+            "1" -> TreeNode.BasicEvent("1", 0.2),
+            "0" -> TreeNode.BasicEvent("0", 0.1)
         ))
 
         val treeLikeFaultTree = translateToTreeLikeFaultTree(dagTree)
@@ -171,8 +169,8 @@ object Conversion {
         println()
 
         val (newFormula, newProbabilities) = (
-            And(Or(Variable(0), Variable(1)), And(Variable(0), Variable(2))),
-            IntMap(0 -> 0.1, 1 -> 0.2, 2 -> 0.3)
+            And(Or(Variable("0"), Variable("1")), And(Variable("0"), Variable("2"))),
+            Map("0" -> 0.1, "1" -> 0.2, "2" -> 0.3)
         )
 
         val h1 = decisiontree.height(formula, probabilities)

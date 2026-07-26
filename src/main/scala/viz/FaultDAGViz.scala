@@ -11,7 +11,7 @@ import java.io.File
 import javax.swing.{ImageIcon, JFrame, JLabel}
 import scala.collection.mutable
 
-type Event = Int
+type Event = String
 
 object FaultDAGViz {
 

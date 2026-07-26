@@ -1,10 +1,8 @@
 package minimalcutpathset
 
-import scala.collection.immutable.IntMap
-
 object PaseNormalised {
 
-    def pathSetProbability(pathSet: PathSet, probabilities: IntMap[Probability]): Probability =
+    def pathSetProbability(pathSet: PathSet, probabilities: Map[Event, Probability]): Probability =
         pathSet.toSeq.map(basicEvent => 1D - probabilities(basicEvent)).product / pathSet.size
 
     def paseNormalised(faultTree: FaultTree): Double = {
@@ -13,7 +11,7 @@ object PaseNormalised {
         paseNormalised(faultTree, basicEvents, probabilities)
     }
 
-    def paseNormalised(faultTree: FaultTree, basicEvents: Set[Event], probabilities: IntMap[Probability]): Double = {
+    def paseNormalised(faultTree: FaultTree, basicEvents: Set[Event], probabilities: Map[Event, Probability]): Double = {
         val pathSets = minimalPathSets(faultTree)(basicEvents)
 
         val (etas, height) = paseNormalised(pathSets, probabilities)
@@ -22,7 +20,7 @@ object PaseNormalised {
     }
 
     // paper: 'pase' or 'PaDA'.
-    def paseNormalised(pathSets: PathSets, basicEvents: IntMap[Probability]): (Etas, Double) = {
+    def paseNormalised(pathSets: PathSets, basicEvents: Map[Event, Probability]): (Etas, Double) = {
         val n = basicEvents.size
         val Pnil = pathSets
 

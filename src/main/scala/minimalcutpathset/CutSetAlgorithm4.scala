@@ -1,8 +1,6 @@
 package minimalcutpathset
 
-import scala.collection.immutable.IntMap
-
-def cutSetProbability(cutSet: CutSet, probabilities: IntMap[Probability]): Probability =
+def cutSetProbability(cutSet: CutSet, probabilities: Map[Event, Probability]): Probability =
     cutSet.toSeq.map(basicEvent => probabilities(basicEvent)).product
 
 def height4(faultTree: FaultTree): Double = {
@@ -11,7 +9,7 @@ def height4(faultTree: FaultTree): Double = {
     height4(faultTree, basicEvents, probabilities)
 }
 
-def height4(faultTree: FaultTree, basicEvents: Set[Event], probabilities: IntMap[Probability]): Double = {
+def height4(faultTree: FaultTree, basicEvents: Set[Event], probabilities: Map[Event, Probability]): Double = {
     val cutSets = minimalCutSets(faultTree)(basicEvents)
 
     val (etas, height) = algorithm4(cutSets, probabilities)
@@ -20,7 +18,7 @@ def height4(faultTree: FaultTree, basicEvents: Set[Event], probabilities: IntMap
 }
 
 // paper: 'mince' or 'CuDA'.
-def algorithm4(cutSets: CutSets, basicEvents: IntMap[Probability]): (Etas, Double) = {
+def algorithm4(cutSets: CutSets, basicEvents: Map[Event, Probability]): (Etas, Double) = {
     val n = basicEvents.size
     val Cnil = cutSets
 
@@ -141,19 +139,19 @@ def algorithm4(faultTree: FaultTree): (Etas, Double) = {
 
 @main
 def testAlgo4(): Unit = {
-//    println(height4(
-//        FaultTree(1, Map(
-//            1 -> TreeNode.Combination(1, Gate.Or, Set(2, 3)),
-//            2 -> TreeNode.Combination(2, Gate.And, Set(4, 5, 6)),
-//            3 -> TreeNode.Combination(3, Gate.And, Set(7, 8)),
-//            4 -> TreeNode.BasicEvent(4, 0.5),
-//            5 -> TreeNode.BasicEvent(5, 0.7),
-//            6 -> TreeNode.BasicEvent(6, 0.4),
-//            7 -> TreeNode.BasicEvent(7, 0.6),
-//            8 -> TreeNode.BasicEvent(8, 0.2)
-//        ))
-//    ))  // expected: 2.632
-//    println()
+    println(height4(
+        FaultTree("1", Map(
+            "1" -> TreeNode.Combination("1", Gate.Or, Set("2", "3")),
+            "2" -> TreeNode.Combination("2", Gate.And, Set("4", "5", "6")),
+            "3" -> TreeNode.Combination("3", Gate.And, Set("7", "8")),
+            "4" -> TreeNode.BasicEvent("4", 0.5),
+            "5" -> TreeNode.BasicEvent("5", 0.7),
+            "6" -> TreeNode.BasicEvent("6", 0.4),
+            "7" -> TreeNode.BasicEvent("7", 0.6),
+            "8" -> TreeNode.BasicEvent("8", 0.2)
+        ))
+    ))  // expected: 2.632
+    println()
 
     val (etas, height) = algorithm4(reallife.T0Chopper.FT)
     println(height) // expected: 15.877624503409331

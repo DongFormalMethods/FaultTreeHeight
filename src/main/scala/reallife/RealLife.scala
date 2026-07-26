@@ -7,7 +7,6 @@ import dft.DFT
 
 import java.io.File
 import java.util.random.RandomGenerator
-import scala.collection.immutable.IntMap
 import scala.io.Source
 
 trait SimpleFaultTree {
@@ -121,7 +120,7 @@ object RealLife {
             val basicEvents = minimalcutpathset.getBasicEvents(dagFT)
             val (booleanFormula, _) = Conversion.translateToBooleanFormula(treeFT)
             val bdd = BDD.readStormSylvanBDDDotFile(new File(s"generated/bdd/${treeLikeFT.name}.dot"))
-            val bddProbabilities = BDD.bddProbabilities(DFT.readDFTFile(Source.fromFile(new File(s"generated/dft/${treeLikeFT.name}.dft")))._1)
+            val bddProbabilities = BDD.bddProbabilities(DFT.readDFTFile(Source.fromFile(new File(s"generated/dft/${treeLikeFT.name}.dft"))))
 
             println("Flattening tree for recursive algorithm...")
             val flattenedTree = faulttree.flatten(treeFT)
@@ -190,7 +189,7 @@ object RealLife {
             val basicEvents = minimalcutpathset.getBasicEvents(dagFT)
             val (booleanFormula, probabilities) = Conversion.translateToBooleanFormula(dagFT)
             val bdd = BDD.readStormSylvanBDDDotFile(new File(s"generated/bdd/${dagLikeFT.name}.dot"))
-            val bddProbabilities = BDD.bddProbabilities(DFT.readDFTFile(Source.fromFile(new File(s"generated/dft/${dagLikeFT.name}.dft")))._1)
+            val bddProbabilities = BDD.bddProbabilities(DFT.readDFTFile(Source.fromFile(new File(s"generated/dft/${dagLikeFT.name}.dft"))))
 
             println("Flattening tree for recursive algorithm")
             val flattenedDag = minimalcutpathset.flatten(dagFT)
@@ -266,7 +265,7 @@ object EnumerationAlgorithm {
         case _ => throw new RuntimeException("Impossible!")
     }
 
-    def runEnumerationAlgorithm(name: String, booleanFormula: BooleanFormula, basicEventProbabilities: IntMap[Double]): Unit = {
+    def runEnumerationAlgorithm(name: String, booleanFormula: BooleanFormula, basicEventProbabilities: Map[String, Double]): Unit = {
         val time_before = System.nanoTime()
         val height = decisiontree.height(booleanFormula, basicEventProbabilities)
         val time_after = System.nanoTime()
@@ -334,8 +333,8 @@ object RangerAlgorithm {
     }
 
     @java.lang.Deprecated
-    def runRangerAlgorithm(booleanFormula: BooleanFormula, basicEventProbabilities: IntMap[Double])(using random: java.util.random.RandomGenerator): Double = {
-        val events: Set[Int] = basicEventProbabilities.keySet
+    def runRangerAlgorithm(booleanFormula: BooleanFormula, basicEventProbabilities: Map[decisiontree.Event, Double])(using random: java.util.random.RandomGenerator): Double = {
+        val events: Set[decisiontree.Event] = basicEventProbabilities.keySet
 
         val (height, binaryDecisionTree) = decisiontree.RandomBDTs.height(events, booleanFormula, basicEventProbabilities)
 
@@ -379,7 +378,6 @@ object CSVOutput {
 
 object AircraftRunwayExcursionAccidents extends TreeLikeFaultTree {
     import faulttree.FaultTree
-    import faulttree.FaultTree.*
 
     val X1 = 1
     val X2 = 2
@@ -439,6 +437,10 @@ object AircraftRunwayExcursionAccidents extends TreeLikeFaultTree {
     final val p19 = 3E-5
     final val p20 = 3E-5
     final val p21 = 3E-5
+
+    private def AndEvent(id: Int, children: Seq[FaultTree]): FaultTree.AndEvent = FaultTree.AndEvent(String.valueOf(id), children)
+    private def OrEvent(id: Int, children: Seq[FaultTree]): FaultTree.OrEvent = FaultTree.OrEvent(String.valueOf(id), children)
+    private def BasicEvent(id: Int, probability: Double): FaultTree.BasicEvent = FaultTree.BasicEvent(String.valueOf(id), probability)
 
     val FT: FaultTree = AndEvent(T, Seq(
         OrEvent(M1, Seq(
@@ -583,6 +585,10 @@ object ChlorineRelease extends DagLikeFaultTree {
     final val p26 = exp(1.081, -3)
     final val p27 = exp(7.659, -4)
 
+    private def FaultTree(top: Int, events: Map[Int, TreeNode]): FaultTree = new FaultTree(String.valueOf(top), events.map((e, tn) => (String.valueOf(e), tn)))
+    private def BasicEvent(event: Int, probability: Double): TreeNode.BasicEvent = new TreeNode.BasicEvent(String.valueOf(event), probability)
+    private def Combination(event: Int, gate: Gate, children: Set[Int]) = new TreeNode.Combination(String.valueOf(event), gate, children.map(String.valueOf))
+
     val FT: FaultTree = FaultTree(ChlorineRelease, Map(
         B1 -> BasicEvent(B1, p1),
         B2 -> BasicEvent(B2, p2),
@@ -650,7 +656,9 @@ object ChlorineRelease extends DagLikeFaultTree {
 object MainTrackTrainCollisionsLeadingToFatalitiesAndInjuries extends TreeLikeFaultTree {
 
     import faulttree.FaultTree
-    import faulttree.FaultTree.*
+    private def AndEvent(id: Int, children: Seq[FaultTree]): FaultTree.AndEvent = FaultTree.AndEvent(String.valueOf(id), children)
+    private def OrEvent(id: Int, children: Seq[FaultTree]): FaultTree.OrEvent = FaultTree.OrEvent(String.valueOf(id), children)
+    private def BasicEvent(id: Int, probability: Double): FaultTree.BasicEvent = FaultTree.BasicEvent(String.valueOf(id), probability)
 
     val X1 = 1
     val X2 = 2
@@ -693,7 +701,10 @@ object MainTrackTrainCollisionsLeadingToFatalitiesAndInjuries extends TreeLikeFa
 
 object ATCFailsToResolveTheConflict extends TreeLikeFaultTree {
     import faulttree.FaultTree
-    import faulttree.FaultTree.*
+
+    private def AndEvent(id: Int, children: Seq[FaultTree]): FaultTree.AndEvent = FaultTree.AndEvent(String.valueOf(id), children)
+    private def OrEvent(id: Int, children: Seq[FaultTree]): FaultTree.OrEvent = FaultTree.OrEvent(String.valueOf(id), children)
+    private def BasicEvent(id: Int, probability: Double): FaultTree.BasicEvent = FaultTree.BasicEvent(String.valueOf(id), probability)
 
     val X1 = 1
     val X2 = 2
@@ -830,6 +841,10 @@ object T0Chopper extends DagLikeFaultTree {
     final val M6 = 22
     final val M7 = 23
 
+    private def FaultTree(top: Int, events: Map[Int, TreeNode]): FaultTree = new FaultTree(String.valueOf(top), events.map((e, tn) => (String.valueOf(e), tn)))
+    private def BasicEvent(event: Int, probability: Double): TreeNode.BasicEvent = new TreeNode.BasicEvent(String.valueOf(event), probability)
+    private def Combination(event: Int, gate: Gate, children: Set[Int]) = new TreeNode.Combination(String.valueOf(event), gate, children.map(String.valueOf))
+
     val FT: FaultTree = FaultTree(T, Map(
         X1 -> BasicEvent(X1, p1),
         X2 -> BasicEvent(X2, p2),
@@ -866,7 +881,10 @@ object T0Chopper extends DagLikeFaultTree {
 // The values in the DFT benchmark set and the corresponding paper don't seem to be the same.
 object LiquidStorageTank extends TreeLikeFaultTree {
     import faulttree.FaultTree
-    import faulttree.FaultTree.*
+
+    private def AndEvent(id: Int, children: Seq[FaultTree]): FaultTree.AndEvent = FaultTree.AndEvent(String.valueOf(id), children)
+    private def OrEvent(id: Int, children: Seq[FaultTree]): FaultTree.OrEvent = FaultTree.OrEvent(String.valueOf(id), children)
+    private def BasicEvent(id: Int, probability: Double): FaultTree.BasicEvent = FaultTree.BasicEvent(String.valueOf(id), probability)
 
     val X1 = 1
     val X2 = 2
@@ -992,7 +1010,10 @@ object LiquidStorageTankFromDFT extends TreeLikeFaultTree {
 object LossContainerAtPort extends TreeLikeFaultTree {
 
     import faulttree.FaultTree
-    import faulttree.FaultTree.*
+
+    private def AndEvent(id: Int, children: Seq[FaultTree]): FaultTree.AndEvent = FaultTree.AndEvent(String.valueOf(id), children)
+    private def OrEvent(id: Int, children: Seq[FaultTree]): FaultTree.OrEvent = FaultTree.OrEvent(String.valueOf(id), children)
+    private def BasicEvent(id: Int, probability: Double): FaultTree.BasicEvent = FaultTree.BasicEvent(String.valueOf(id), probability)
 
     val X1 = 1
     val X2 = 2
@@ -1144,7 +1165,10 @@ object LossContainerAtPort extends TreeLikeFaultTree {
 object HSC extends TreeLikeFaultTree {
 
     import faulttree.FaultTree
-    import faulttree.FaultTree.*
+
+    private def AndEvent(id: Int, children: Seq[FaultTree]): FaultTree.AndEvent = FaultTree.AndEvent(String.valueOf(id), children)
+    private def OrEvent(id: Int, children: Seq[FaultTree]): FaultTree.OrEvent = FaultTree.OrEvent(String.valueOf(id), children)
+    private def BasicEvent(id: Int, probability: Double): FaultTree.BasicEvent = FaultTree.BasicEvent(String.valueOf(id), probability)
 
     val X1 = 1
     val X2 = 2
@@ -1362,7 +1386,10 @@ object HSC extends TreeLikeFaultTree {
 object SubmarinePipelineStopperFailure extends TreeLikeFaultTree {
 
     import faulttree.FaultTree
-    import faulttree.FaultTree.*
+
+    private def AndEvent(id: Int, children: Seq[FaultTree]): FaultTree.AndEvent = FaultTree.AndEvent(String.valueOf(id), children)
+    private def OrEvent(id: Int, children: Seq[FaultTree]): FaultTree.OrEvent = FaultTree.OrEvent(String.valueOf(id), children)
+    private def BasicEvent(id: Int, probability: Double): FaultTree.BasicEvent = FaultTree.BasicEvent(String.valueOf(id), probability)
 
     val X1 = 1
     val X2 = 2
@@ -1535,7 +1562,10 @@ object SubmarinePipelineStopperFailure extends TreeLikeFaultTree {
 object BHNGPipeline extends TreeLikeFaultTree {
 
     import faulttree.FaultTree
-    import faulttree.FaultTree.*
+
+    private def AndEvent(id: Int, children: Seq[FaultTree]): FaultTree.AndEvent = FaultTree.AndEvent(String.valueOf(id), children)
+    private def OrEvent(id: Int, children: Seq[FaultTree]): FaultTree.OrEvent = FaultTree.OrEvent(String.valueOf(id), children)
+    private def BasicEvent(id: Int, probability: Double): FaultTree.BasicEvent = FaultTree.BasicEvent(String.valueOf(id), probability)
 
     val X1 = 1
     val X2 = 2
@@ -1739,7 +1769,10 @@ object BHNGPipeline extends TreeLikeFaultTree {
 object ChemicalCargoShortage extends TreeLikeFaultTree {
 
     import faulttree.FaultTree
-    import faulttree.FaultTree.*
+
+    private def AndEvent(id: Int, children: Seq[FaultTree]): FaultTree.AndEvent = FaultTree.AndEvent(String.valueOf(id), children)
+    private def OrEvent(id: Int, children: Seq[FaultTree]): FaultTree.OrEvent = FaultTree.OrEvent(String.valueOf(id), children)
+    private def BasicEvent(id: Int, probability: Double): FaultTree.BasicEvent = FaultTree.BasicEvent(String.valueOf(id), probability)
 
     val X1 = 1
     val X2 = 2

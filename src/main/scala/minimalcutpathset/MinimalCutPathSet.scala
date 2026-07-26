@@ -3,7 +3,6 @@ package minimalcutpathset
 import minimalcutpathset.TreeNode.Combination
 import reallife.T0Chopper
 
-import scala.collection.immutable.IntMap
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.given
 import scala.util.boundary
@@ -17,11 +16,12 @@ enum TreeNode(id: Event):
     case Combination(id: Event, gate: Gate, children: Set[Event]) extends TreeNode(id)
     case BasicEvent(id: Event, probability: Probability) extends TreeNode(id)
 
+/** A DAG-like Fault Tree. */
 case class FaultTree(topEvent: Event, events: Map[Event, TreeNode]):
     def node(id: Event): TreeNode = events(id)
     def topNode = node(topEvent)
 
-type Event = Int
+type Event = String
 type Probability = Double
 
 def doubleEqual(one: Double, two: Double): Boolean =
@@ -148,7 +148,7 @@ def other(decision: Decision): Decision = decision match
     case Decision.Zero => Decision.One
     case Decision.One => Decision.Zero
 
-def height(tree: FaultTree, probabilities: IntMap[Probability]): Double = {
+def height(tree: FaultTree, probabilities: Map[Event, Probability]): Double = {
     val basicEvents = getBasicEvents(tree)
     val cutSets = minimalCutSets(tree)(basicEvents)
     val pathSets = minimalPathSets(tree)(basicEvents)
@@ -158,7 +158,7 @@ def height(tree: FaultTree, probabilities: IntMap[Probability]): Double = {
     height
 }
 
-def approximate(minimalCutSets: CutSets, minimalPathSets: PathSets, basicEvents: IntMap[Probability]): (Etas, Double) = {
+def approximate(minimalCutSets: CutSets, minimalPathSets: PathSets, basicEvents: Map[Event, Probability]): (Etas, Double) = {
     val n = basicEvents.size
 
     var minimumEtas: Etas = scala.collection.mutable.Map.empty
@@ -297,7 +297,7 @@ def approximate(minimalCutSets: CutSets, minimalPathSets: PathSets, basicEvents:
     (minimumEtas, minimumHeight)
 }
 
-// TODO JDK 25: use StableValue api.
+// TODO: use StableValue api, when it is stable :^).
 class CachedFunction0[A](private var supplier: Function0[A]) extends Function0[A] {
     private var value: A | Unset.type = Unset
 
@@ -318,13 +318,13 @@ object Unset
 def main(): Unit = {
 
     val tree = reproTree3
-    val probabilities = IntMap.from(tree.events.collect { case (_, TreeNode.BasicEvent(e, p)) => (e, p) })
+    val probabilities = Map.from(tree.events.collect { case (_, TreeNode.BasicEvent(e, p)) => (e, p) })
 
     println(height(tree, probabilities))
 
-//    val cutSets = Set(Set(0), Set(1, 2), Set(1, 3))
-//    val pathSets = Set(Set(0, 1), Set(0, 2, 3))
-//    val probabilities = IntMap(0 -> 2D/3D, 1 -> 1D/4D, 2 -> 1D/3D, 3 -> 1D/2D)
+//    val cutSets = Set(Set("0"), Set("1", "2"), Set("1", "3"))
+//    val pathSets = Set(Set("0", "1"), Set("0", "2", "3"))
+//    val probabilities = Map("0" -> 2D/3D, "1" -> 1D/4D, "2" -> 1D/3D, "3" -> 1D/2D)
 //    val aBasicEvent = new java.util.Random().nextInt(probabilities.size)    // unexpected result for aBasicEvent = 0
 //    println(aBasicEvent)
 //
@@ -333,14 +333,14 @@ def main(): Unit = {
 //    println(etas)
 //    println(hNil)   // 1.4583333333333335 for aBasicEvent = 0
 //
-//    val exampleTree = FaultTree(0, Map(
-//        0 -> TreeNode.Combination(0, Gate.Or, Set(1, 2)),
-//        1 -> TreeNode.BasicEvent(1, 0D),    // A
-//        2 -> TreeNode.Combination(2, Gate.And, Set(3, 4)),
-//        3 -> TreeNode.BasicEvent(3, 0D),    // B
-//        4 -> TreeNode.Combination(4, Gate.Or, Set(5, 6)),
-//        5 -> TreeNode.BasicEvent(5, 0D),    // C
-//        6 -> TreeNode.BasicEvent(6, 0D),    // D
+//    val exampleTree = FaultTree("0", Map(
+//        "0" -> TreeNode.Combination("0", Gate.Or, Set("1", "2")),
+//        "1" -> TreeNode.BasicEvent("1", 0D),    // A
+//        "2" -> TreeNode.Combination("2", Gate.And, Set("3", "4")),
+//        "3" -> TreeNode.BasicEvent("3", 0D),    // B
+//        "4" -> TreeNode.Combination("4", Gate.Or, Set("5", "6")),
+//        "5" -> TreeNode.BasicEvent("5", 0D),    // C
+//        "6" -> TreeNode.BasicEvent("6", 0D),    // D
 //    ))
 
 //    println(minimalCutSets(exampleTree))
@@ -355,8 +355,8 @@ def minimalPathSets(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEven
 
 // can we use this function in the MOCUS/MOPAS 'and' and 'or' branches instead of only at the end?
 // perhaps we can, but I doubt that's more efficient then just doing it once at the end.
-def removeSupersets(cutSets: Iterable[Set[Event]]): Seq[Set[Event]] = {
-    val result = new java.util.HashSet[CutSet]()
+def removeSupersets[Event](cutSets: Iterable[Set[Event]]): Seq[Set[Event]] = {
+    val result = new java.util.HashSet[Set[Event]]()
 
     val cutSetIterator = cutSets.iterator
     while (cutSetIterator.hasNext) {
@@ -381,8 +381,8 @@ def removeSupersets(cutSets: Iterable[Set[Event]]): Seq[Set[Event]] = {
     result.asScala.toList
 }
 
-def getProbabilities(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEvents(faultTree)): IntMap[Probability] =
-    IntMap.from(basicEvents.map(e => faultTree.node(e)).map {
+def getProbabilities(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEvents(faultTree)): Map[Event, Probability] =
+    Map.from(basicEvents.map(e => faultTree.node(e)).map {
         case TreeNode.BasicEvent(be, prob) => (be, prob)
     })
 
@@ -394,6 +394,7 @@ def getBasicEvents(faultTree: FaultTree): Set[Event] =
         .map((event, _) => event)
         .toSet
 
+// 'Method Of Obtaining Cutsets' algorithm.
 def MOCUS(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEvents(faultTree)): Seq[Set[Event]] = {
 
     // contains only sets which completely consist of basic evens
@@ -433,6 +434,7 @@ def MOCUS(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEvents(faultTr
     removeSupersets(resultBuilder)
 }
 
+// Similar, but for PathSets.
 def MOPAS(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEvents(faultTree)): Seq[Set[Event]] = {
 
     // contains only sets which completely consist of basic evens
@@ -472,58 +474,58 @@ def MOPAS(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEvents(faultTr
     removeSupersets(resultBuilder)
 }
 
-val reproTree = FaultTree(0, Map(
-    0 -> TreeNode.Combination(0,Gate.Or,Set(1, 2, 6)),
-    5 -> TreeNode.BasicEvent(5,0.22111687978494943),
-    1 -> TreeNode.BasicEvent(1,0.43227359997383685),
-    6 -> Combination(6,Gate.And,Set(7, 8, 9)),
-    9 -> TreeNode.BasicEvent(9,0.9067115560033326),
-    2 -> Combination(2,Gate.And,Set(3, 4, 5)),
-    7 -> TreeNode.BasicEvent(7,0.7801324848806612),
-    3 -> TreeNode.BasicEvent(3,0.852759862927743),
-    8 -> TreeNode.BasicEvent(8,0.9046625728136396),
-    4 -> TreeNode.BasicEvent(4,0.37254938544467475))
+val reproTree = FaultTree("0", Map(
+    "0" -> TreeNode.Combination("0",Gate.Or,Set("1", "2", "6")),
+    "5" -> TreeNode.BasicEvent("5",0.22111687978494943),
+    "1" -> TreeNode.BasicEvent("1",0.43227359997383685),
+    "6" -> Combination("6",Gate.And,Set("7", "8", "9")),
+    "9" -> TreeNode.BasicEvent("9",0.9067115560033326),
+    "2" -> Combination("2",Gate.And,Set("3", "4", "5")),
+    "7" -> TreeNode.BasicEvent("7",0.7801324848806612),
+    "3" -> TreeNode.BasicEvent("3",0.852759862927743),
+    "8" -> TreeNode.BasicEvent("8",0.9046625728136396),
+    "4" -> TreeNode.BasicEvent("4",0.37254938544467475))
 )
 
-val inverseTree = FaultTree(0, Map(
-    0 -> TreeNode.Combination(0,Gate.And,Set(1, 2, 6)),
-    1 -> TreeNode.BasicEvent(1,0.43227359997383685),
-    2 -> Combination(2,Gate.Or,Set(3, 4, 5)),
-    3 -> TreeNode.BasicEvent(3,0.852759862927743),
-    4 -> TreeNode.BasicEvent(4,0.37254938544467475),
-    5 -> TreeNode.BasicEvent(5,0.22111687978494943),
-    6 -> Combination(6,Gate.Or,Set(7, 8, 9)),
-    7 -> TreeNode.BasicEvent(7,0.7801324848806612),
-    8 -> TreeNode.BasicEvent(8,0.9046625728136396),
-    9 -> TreeNode.BasicEvent(9, 0.9067115560033326),
+val inverseTree = FaultTree("0", Map(
+    "0" -> TreeNode.Combination("0",Gate.And,Set("1", "2", "6")),
+    "1" -> TreeNode.BasicEvent("1",0.43227359997383685),
+    "2" -> Combination("2",Gate.Or,Set("3", "4", "5")),
+    "3" -> TreeNode.BasicEvent("3",0.852759862927743),
+    "4" -> TreeNode.BasicEvent("4",0.37254938544467475),
+    "5" -> TreeNode.BasicEvent("5",0.22111687978494943),
+    "6" -> Combination("6",Gate.Or,Set("7", "8", "9")),
+    "7" -> TreeNode.BasicEvent("7",0.7801324848806612),
+    "8" -> TreeNode.BasicEvent("8",0.9046625728136396),
+    "9" -> TreeNode.BasicEvent("9", 0.9067115560033326),
 ))  // AND(1, OR(3, 4, 5), OR(7, 8, 9)) -- {{1, 3, 7}, {1, 3, 8}, {1, 3, 9}, {1, 4, 7}, {1, 4, 8}, {1, 4, 9}, {1, 5, 7}, {1, 5, 8}, {1, 5, 9}}.
 
-val reproTree2 = FaultTree(0, Map(
-    0 -> TreeNode.Combination(0,Gate.And,Set(1, 5, 8)),
-    5 -> TreeNode.Combination(5,Gate.Or,Set(6, 7)),
-    10 -> TreeNode.BasicEvent(10,0.29221086224595927),
-    1 -> TreeNode.Combination(1,Gate.Or,Set(2, 3, 4)),
-    6 -> TreeNode.BasicEvent(6,0.9054326731384866),
-    9 -> TreeNode.BasicEvent(9,0.45262926590945163),
-    2 -> TreeNode.BasicEvent(2,0.49269513586680935),
-    7 -> TreeNode.BasicEvent(7,0.5186968563256549),
-    3 -> TreeNode.BasicEvent(3,0.48008922637336704),
-    11 -> TreeNode.BasicEvent(11,0.8682779082769414),
-    8 -> TreeNode.Combination(8,Gate.Or,Set(9, 10, 11)),
-    4 -> TreeNode.BasicEvent(4,0.4289924531062296)
+val reproTree2 = FaultTree("0", Map(
+    "0" -> TreeNode.Combination("0",Gate.And,Set("1", "5", "8")),
+    "5" -> TreeNode.Combination("5",Gate.Or,Set("6", "7")),
+    "10" -> TreeNode.BasicEvent("10",0.29221086224595927),
+    "1" -> TreeNode.Combination("1",Gate.Or,Set("2", "3", "4")),
+    "6" -> TreeNode.BasicEvent("6",0.9054326731384866),
+    "9" -> TreeNode.BasicEvent("9",0.45262926590945163),
+    "2" -> TreeNode.BasicEvent("2",0.49269513586680935),
+    "7" -> TreeNode.BasicEvent("7",0.5186968563256549),
+    "3" -> TreeNode.BasicEvent("3",0.48008922637336704),
+    "11" -> TreeNode.BasicEvent("11",0.8682779082769414),
+    "8" -> TreeNode.Combination("8",Gate.Or,Set("9", "10", "11")),
+    "4" -> TreeNode.BasicEvent("4",0.4289924531062296)
 ))
 
-val reproTree3 = FaultTree(0, Map(
-    0 -> TreeNode.Combination(0,Gate.And,Set(1, 2, 6)),
-    5 -> TreeNode.BasicEvent(5,0.0748941995542074),
-    1 -> TreeNode.BasicEvent(1,0.2434053844309706),
-    6 -> TreeNode.Combination(6,Gate.Or,Set(7, 8, 9)),
-    9 -> TreeNode.BasicEvent(9,0.2846316951156139),
-    2 -> TreeNode.Combination(2,Gate.Or,Set(3, 4, 5)),
-    7 -> TreeNode.BasicEvent(7,0.43658420342890947),
-    3 -> TreeNode.BasicEvent(3,0.9142663475183694),
-    8 -> TreeNode.BasicEvent(8,0.6186034134816778),
-    4 -> TreeNode.BasicEvent(4,0.20182555017352477)
+val reproTree3 = FaultTree("0", Map(
+    "0" -> TreeNode.Combination("0",Gate.And,Set("1", "2", "6")),
+    "5" -> TreeNode.BasicEvent("5",0.0748941995542074),
+    "1" -> TreeNode.BasicEvent("1",0.2434053844309706),
+    "6" -> TreeNode.Combination("6",Gate.Or,Set("7", "8", "9")),
+    "9" -> TreeNode.BasicEvent("9",0.2846316951156139),
+    "2" -> TreeNode.Combination("2",Gate.Or,Set("3", "4", "5")),
+    "7" -> TreeNode.BasicEvent("7",0.43658420342890947),
+    "3" -> TreeNode.BasicEvent("3",0.9142663475183694),
+    "8" -> TreeNode.BasicEvent("8",0.6186034134816778),
+    "4" -> TreeNode.BasicEvent("4",0.20182555017352477)
 ))
 
 @main def testSets(): Unit = {

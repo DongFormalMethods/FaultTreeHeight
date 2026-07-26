@@ -3,15 +3,13 @@ package dft
 import benchmark.Conversion
 
 import java.io.{BufferedWriter, File, FileWriter}
-import scala.collection.immutable.IntMap
-import scala.collection.mutable
 import scala.io.Source
 
 enum DFTNode:
-    case BasicEvent(id: Int, probability: Double)
-    case OrEvent(id: Int, children: Seq[Int])
-    case AndEvent(id: Int, children: Seq[Int])
-    case TopLevel(id: Int)
+    case BasicEvent(id: String, probability: Double)
+    case OrEvent(id: String, children: Seq[String])
+    case AndEvent(id: String, children: Seq[String])
+    case TopLevel(id: String)
 
 object Printing {
 
@@ -25,30 +23,24 @@ object Printing {
 }
 
 object Parsing {
-    enum DFTLine:
-        case BasicEvent(id: String, probability: String)
-        case AndEvent(id: String, children: Seq[String])
-        case OrEvent(id: String, children: Seq[String])
-        case TopLevel(id: String)
-
     import fastparse.*
     import fastparse.NoWhitespace.*
 
-    def dftToplevel[$: P]: P[DFTLine.TopLevel] =
+    def dftToplevel[$: P]: P[DFTNode.TopLevel] =
         P("toplevel \"" ~ CharsWhile(_ != '\"').! ~ "\";")
-            .map { x => DFTLine.TopLevel(x) }
-    def dftOr[$: P]: P[DFTLine.OrEvent] =
+            .map { x => DFTNode.TopLevel(x) }
+    def dftOr[$: P]: P[DFTNode.OrEvent] =
         P("\"" ~ CharsWhile(_ != '\"').! ~ "\" or " ~ ("\"" ~ CharsWhile(_ != '\"').! ~ "\"").rep(sep=" ") ~ ";")
-            .map { case (x, y) => DFTLine.OrEvent(x, y) }
-    def dftAnd[$: P]: P[DFTLine.AndEvent] =
+            .map { case (x, y) => DFTNode.OrEvent(x, y) }
+    def dftAnd[$: P]: P[DFTNode.AndEvent] =
         P("\"" ~ CharsWhile(_ != '\"').! ~ "\" and " ~ ("\"" ~ CharsWhile(_ != '\"').! ~ "\"").rep(sep=" ") ~ ";")
-            .map { case (x, y) => DFTLine.AndEvent(x, y) }
-    def dftBasic[$: P]: P[DFTLine.BasicEvent] =
+            .map { case (x, y) => DFTNode.AndEvent(x, y) }
+    def dftBasic[$: P]: P[DFTNode.BasicEvent] =
         P("\"" ~ CharsWhile(_ != '\"').! ~ "\" prob=" ~ CharsWhile(_ != ';').! ~ ";")
-            .map { case (x, y) => DFTLine.BasicEvent(x, y) }
-    def dftLine[$: P]: P[DFTLine] = dftToplevel | dftOr | dftAnd | dftBasic
+            .map { case (x, y) => DFTNode.BasicEvent(x, y.toDouble) }
+    def dftLine[$: P]: P[DFTNode] = dftToplevel | dftOr | dftAnd | dftBasic
 
-    def parseDFTLine(line: String): DFTLine = {
+    def parseDFTLine(line: String): DFTNode = {
         val Parsed.Success(parsed, _) = parse(line, dftLine)
         parsed
     }
@@ -79,8 +71,8 @@ object Parsing {
 
 object DFT {
     
-    def getProbabilities(dftLines: Seq[DFTNode]): IntMap[Double] =
-        IntMap.from(dftLines.collect {
+    def getProbabilities(dftLines: Seq[DFTNode]): Map[String, Double] =
+        Map.from(dftLines.collect {
             case DFTNode.BasicEvent(id, prob) => (id, prob)
         })
 
@@ -93,48 +85,19 @@ object DFT {
         writer.close()
     }
 
-    def readDFTFile(source: Source): (Seq[DFTNode], Map[String, Int]) = {
-        var curId = 0
-        def nextId(): Int = {
-            val id = curId
-            curId += 1
-            id
-        }
-
-        val idMapping = new mutable.HashMap[String, Int]()
-        def getId(event: String): Int = {
-            val id = idMapping.getOrElseUpdate(event, nextId())
-            id
-        }
-
-        val result = new mutable.ListBuffer[DFTNode]()
-
-        for (line <- source.getLines()) {
-            Parsing.parseDFTLine(line) match {
-                case Parsing.DFTLine.TopLevel(topLevelEvent) =>
-                    result.addOne(DFTNode.TopLevel(getId(topLevelEvent)))
-                case Parsing.DFTLine.OrEvent(parentEvent, childEvents) =>
-                    result.addOne(DFTNode.OrEvent(getId(parentEvent), childEvents.map(getId)))
-                case Parsing.DFTLine.AndEvent(parentEvent, childEvents) =>
-                    result.addOne(DFTNode.AndEvent(getId(parentEvent), childEvents.map(getId)))
-                case Parsing.DFTLine.BasicEvent(basicEvent, prob) =>
-                    result.addOne(DFTNode.BasicEvent(getId(basicEvent), prob.toDouble))
-            }
-        }
-
-        (result.toList, idMapping.toMap)
-    }
+    def readDFTFile(source: Source): Seq[DFTNode] =
+        source.getLines().map(Parsing.parseDFTLine).toSeq
 
     def readTreeLikeFaultTree(source: Source): faulttree.FaultTree =
-        Conversion.translateToTreeLikeFaultTree(readDFTFile(source)._1)
+        Conversion.translateToTreeLikeFaultTree(readDFTFile(source))
 
     def readDagLikeFaultTree(source: Source): minimalcutpathset.FaultTree =
-        Conversion.translateToDagTree(readDFTFile(source)._1)
+        Conversion.translateToDagTree(readDFTFile(source))
     
     def main(args: Array[String]): Unit = {
         val source = Source.fromResource("AssessingtheRisks1.dft")
 
-        val dftNodes = DFT.readDFTFile(source)._1
+        val dftNodes = DFT.readDFTFile(source)
         println(s"DEBUG: how many lines?: ${dftNodes.size}")
 
         for (node <- dftNodes) {

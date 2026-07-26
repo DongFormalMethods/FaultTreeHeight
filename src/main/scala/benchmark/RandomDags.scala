@@ -8,7 +8,7 @@ import scala.collection.mutable
 import scala.util.boundary
 import scala.util.boundary.break;
 
-type Event = Int
+type Event = String
 
 def randomGate()(using random: RandomGenerator): Gate =
     if random.nextBoolean() then Gate.And else Gate.Or
@@ -22,7 +22,7 @@ object RandomDags {
         def nextId(): Event = {
             val oldId = id
             id += 1
-            oldId
+            oldId.toString
         }
 
         // we have to ensure this is only a single top event
@@ -129,7 +129,7 @@ object RandomDags {
                 previousLayer = newLayerEvents.toSeq
                 descendants.addAll(newLayerEvents)
             end while
-            -1 // Unreachable
+            "" // Unreachable
         }
 
         // Create DAG-like fault tree based on links :)
@@ -155,8 +155,10 @@ object RandomDags {
     }
 
     def makeTreeNode(nBasicEvents: Int, event: Event, children: scala.collection.Set[Event])(using random: RandomGenerator): TreeNode = {
-        def isBasicEvent(event: Event): Boolean =
-            0 <= event && event < nBasicEvents
+        def isBasicEvent(event: Event): Boolean = {
+            val eventAsInt = event.toInt
+            0 <= eventAsInt && eventAsInt < nBasicEvents
+        }
 
         if isBasicEvent(event) then
             TreeNode.BasicEvent(event, randomProbability())

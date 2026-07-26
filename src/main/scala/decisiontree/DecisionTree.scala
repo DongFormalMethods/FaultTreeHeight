@@ -1,6 +1,6 @@
 package decisiontree
 
-type Id = Int
+type Id = String
 
 enum BooleanFormula:
     case And(left: BooleanFormula, right: BooleanFormula)
@@ -11,7 +11,6 @@ enum BooleanFormula:
 
 import BooleanFormula.*
 
-import scala.collection.immutable.IntMap
 import scala.collection.mutable
 
 def computeLookupById()(lookup: BooleanFormula, variableId: Id): Boolean = {
@@ -63,17 +62,17 @@ type RealNumber = Double    // We use IEEE 754 double precision floating point n
 
 case class Cache(
         heights: mutable.WeakHashMap[BooleanFormula, RealNumber],
-        heightKs: mutable.WeakHashMap[(BooleanFormula, Int), RealNumber]
+        heightKs: mutable.WeakHashMap[(BooleanFormula, Id), RealNumber]
 )
 
 object Cache:
     def apply(): Cache = Cache(new mutable.WeakHashMap(), new mutable.WeakHashMap())
 
-def height(formula: BooleanFormula, probabilities: IntMap[RealNumber], containsVariable: (BooleanFormula, Id) => Boolean, cache: Cache): RealNumber = {
+def height(formula: BooleanFormula, probabilities: Map[Id, RealNumber], containsVariable: (BooleanFormula, Id) => Boolean, cache: Cache): RealNumber = {
     val cachedHeight = cache.heights.get(formula)
     if cachedHeight.isDefined then return cachedHeight.get
 
-    val result = formula match
+    val result: RealNumber = formula match
         case BooleanFormula.True => 0 // used to be 1.
         case BooleanFormula.False => 0 // used to be 1.
         case _ =>
@@ -86,7 +85,7 @@ def height(formula: BooleanFormula, probabilities: IntMap[RealNumber], containsV
     result
 }
 
-def height(k/*zero-based*/: Int, formula: BooleanFormula, probabilities: IntMap[RealNumber], containsVariable: (BooleanFormula, Id) => Boolean, cache: Cache): RealNumber = {
+def height(k: Id, formula: BooleanFormula, probabilities: Map[Id, RealNumber], containsVariable: (BooleanFormula, Id) => Boolean, cache: Cache): RealNumber = {
     val cacheKey = (formula, k)
     val cachedHeightK = cache.heightKs.get(cacheKey)
     if cachedHeightK.isDefined then return cachedHeightK.get
@@ -100,7 +99,7 @@ def height(k/*zero-based*/: Int, formula: BooleanFormula, probabilities: IntMap[
 }
 
 // paper: 'eminent' or 'EDA'.
-def height(formula: BooleanFormula, probabilities: IntMap[RealNumber]): RealNumber =
+def height(formula: BooleanFormula, probabilities: Map[Id, RealNumber]): RealNumber =
     height(formula, probabilities, computeLookupById(), Cache())
 
 @main def main(): Unit = {
@@ -117,44 +116,44 @@ def height(formula: BooleanFormula, probabilities: IntMap[RealNumber]): RealNumb
 
     // 1.08
     var formula = problematicTree
-    var probabilities = IntMap(0 -> 1D/3D, 1 -> 1D/4D, 2 -> 1D/6D, 3 -> 1D/7D, 4 -> 1D/10D, 5 -> 1D/11D, 6 -> 1D/13D, 7 -> 1D/14D)
+    var probabilities = Map("0" -> 1D/3D, "1" -> 1D/4D, "2" -> 1D/6D, "3" -> 1D/7D, "4" -> 1D/10D, "5" -> 1D/11D, "6" -> 1D/13D, "7" -> 1D/14D)
     println(height(formula, probabilities, computeLookupById(), Cache()))
 
     formula = anotherTree
-    probabilities = IntMap(0 -> 2D/3D, 1 -> 1D/4D, 2 -> 1D/3D, 3 -> 1D/2D)
+    probabilities = Map("0" -> 2D/3D, "1" -> 1D/4D, "2" -> 1D/3D, "3" -> 1D/2D)
     println(height(formula, probabilities, computeLookupById(), Cache()))
 }
 
 val problematicTree: BooleanFormula = And(
     Or(
         And(
-            Variable(0),
-            Variable(1)
+            Variable("0"),
+            Variable("1")
         ),
         Or(
-            Variable(2),
-            Variable(3)
+            Variable("2"),
+            Variable("3")
         )
     ),
     And(
         Or(
-            Variable(4),
-            Variable(5)
+            Variable("4"),
+            Variable("5")
         ),
         And(
-            Variable(6),
-            Variable(7)
+            Variable("6"),
+            Variable("7")
         )
     )
 )
 
 val anotherTree = Or(
-    Variable(0),
+    Variable("0"),
     And(
-        Variable(1),
+        Variable("1"),
         Or(
-            Variable(2),
-            Variable(3)
+            Variable("2"),
+            Variable("3")
         )
     )
 )

@@ -1,6 +1,6 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "3.3.3"
+ThisBuild / scalaVersion := "3.3.8"
 
 //rendering charts
 ThisBuild / javaOptions ++= Seq(
@@ -16,6 +16,8 @@ libraryDependencies += "com.lihaoyi" %% "fastparse" % "3.1.1"
 libraryDependencies ++= Seq(
     "com.github.sbt.junit" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test
 )
+libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0"
+libraryDependencies += "org.slf4j" % "slf4j-jdk14" % "2.0.12"
 
 enablePlugins(JmhPlugin)
 Jmh / javaOptions ++= Seq(
@@ -25,9 +27,12 @@ Jmh / javaOptions ++= Seq(
 
 lazy val root = (project in file("."))
   .settings(
-    name := "FaultTreeHeight"
+    name := "FaultTreeHeight",
+    assembly / assemblyJarName := "FaultTreeHeight.jar",
+    assembly / mainClass := Some("main.Main"),
   )
 
-// structured concurrency api
-javacOptions ++= Seq("--release", "23", "--enable-preview")
-javaOptions += "--enable-preview"
+assembly / assemblyMergeStrategy := {
+    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+    case _ => MergeStrategy.preferProject
+}

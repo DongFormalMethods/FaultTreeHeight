@@ -2,15 +2,13 @@ package minimalcutpathset
 
 import benchmark.Conversion
 
-import scala.collection.immutable.IntMap
-
 object MinceOrderedSet {
 
 
-    def cutSetProbability(cutSet: CutSet, probabilities: IntMap[Probability]): Probability =
+    def cutSetProbability(cutSet: CutSet, probabilities: Map[Event, Probability]): Probability =
         cutSet.toSeq.map(basicEvent => probabilities(basicEvent)).product
 
-    def getSmallestCutSetWithHighestProbability(cutSets: CutSets, probabilities: IntMap[Probability]): (CutSet, Probability) = {
+    def getSmallestCutSetWithHighestProbability(cutSets: CutSets, probabilities: Map[Event, Probability]): (CutSet, Probability) = {
         val cutSetsSeq = cutSets.toSeq
         LazyList.from(cutSetsSeq)
             .zip(LazyList.from(cutSetsSeq).map(cs => cutSetProbability(cs, probabilities)))
@@ -20,7 +18,7 @@ object MinceOrderedSet {
             ).head
     }
 
-    def minceOrderedSet(faultTree: FaultTree, basicEvents: Set[Event], probabilities: IntMap[Probability]): Double = {
+    def minceOrderedSet(faultTree: FaultTree, basicEvents: Set[Event], probabilities: Map[Event, Probability]): Double = {
         val cutSets = minimalCutSets(faultTree)(basicEvents)
 
         val (etas, height) = minceOrderedSet(cutSets, probabilities)
@@ -29,7 +27,7 @@ object MinceOrderedSet {
     }
 
     // paper: 'mince' or 'CuDA'.
-    def minceOrderedSet(cutSets: CutSets, basicEvents: IntMap[Probability]): (Etas, Double) = {
+    def minceOrderedSet(cutSets: CutSets, basicEvents: Map[Event, Probability]): (Etas, Double) = {
         val n = basicEvents.size
         val Cnil = cutSets
 

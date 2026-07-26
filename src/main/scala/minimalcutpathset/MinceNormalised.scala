@@ -2,14 +2,12 @@ package minimalcutpathset
 
 import benchmark.Conversion
 
-import scala.collection.immutable.IntMap
-
 object MinceNormalised {
 
-    def cutSetProbability(cutSet: CutSet, probabilities: IntMap[Probability]): Probability =
+    def cutSetProbability(cutSet: CutSet, probabilities: Map[Event, Probability]): Probability =
         cutSet.toSeq.map(basicEvent => probabilities(basicEvent)).product / cutSet.size
 
-    def minceNormalised(faultTree: FaultTree, basicEvents: Set[Event], probabilities: IntMap[Probability]): Double = {
+    def minceNormalised(faultTree: FaultTree, basicEvents: Set[Event], probabilities: Map[Event, Probability]): Double = {
         val cutSets = minimalCutSets(faultTree)(basicEvents)
 
         val (etas, height) = minceNormalised(cutSets, probabilities)
@@ -17,7 +15,7 @@ object MinceNormalised {
         height
     }
 
-    def minceNormalised(cutSets: CutSets, basicEvents: IntMap[Probability]): (Etas, Double) = {
+    def minceNormalised(cutSets: CutSets, basicEvents: Map[Event, Probability]): (Etas, Double) = {
         val n = basicEvents.size
         val Cnil = cutSets
 
