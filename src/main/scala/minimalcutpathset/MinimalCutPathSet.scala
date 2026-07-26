@@ -355,8 +355,8 @@ def minimalPathSets(faultTree: FaultTree)(basicEvents: Set[Event] = getBasicEven
 
 // can we use this function in the MOCUS/MOPAS 'and' and 'or' branches instead of only at the end?
 // perhaps we can, but I doubt that's more efficient then just doing it once at the end.
-def removeSupersets(cutSets: Iterable[Set[Event]]): Seq[Set[Event]] = {
-    val result = new java.util.HashSet[CutSet]()
+def removeSupersets[Event](cutSets: Iterable[Set[Event]]): Seq[Set[Event]] = {
+    val result = new java.util.HashSet[Set[Event]]()
 
     val cutSetIterator = cutSets.iterator
     while (cutSetIterator.hasNext) {
