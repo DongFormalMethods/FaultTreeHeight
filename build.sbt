@@ -32,10 +32,6 @@ lazy val root = (project in file("."))
     assembly / mainClass := Some("main.Main"),
   )
 
-// structured concurrency api
-javacOptions ++= Seq("--release", "23", "--enable-preview")
-javaOptions += "--enable-preview"
-
 assembly / assemblyMergeStrategy := {
     case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
     case _ => MergeStrategy.preferProject
