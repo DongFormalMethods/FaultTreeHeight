@@ -9,11 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Set up JDK 25
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v6
         with:
-          distributions: 'temurin'
+          distribution: 'temurin'
           java-version: '25'
-          cache: 'maven'
       - uses: sbt/setup-sbt@v1
       - name: Build FaultTreeHeight
         run: sbt assembly
