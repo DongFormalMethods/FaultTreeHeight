@@ -1,4 +1,24 @@
-# Fault Tree height calculations
+# Optimal Decision Tree Algorithms
+
+This repository hosts algorithms designed to find optimal diagnostic decision trees for helping engineers to do fault diagnosis quickly.<br>
+These algorithms were designed by Yanni Dong, Milan Lopuhaä-Zwakenberg and Mariëlle Stoelinga in 2025.
+
+#### Exact optimal Diagnostic decision tree Algorithm (EDA)
+By using this algorithm you can find the optimal decision tree with the minimum height. Due to its exponential time complexity it is only suitable for small fault trees. Use of this algorithm is not recommended for fault trees with #basic-events ≥ 10.
+
+The following three algorithms are approximation algorithms.
+
+#### Bottom-Up Decision tree heuristic Algorithm (BUDA)
+This algorithm works from the leaves of the fault tree upwards to the root. It is the quickest among the 3 approximation algorithms, especially for tree-like fault trees, i.e., the underlying undirected graph is a tree.
+If you have a tree-like fault tree, we suggest you to use this algorithm.
+
+#### Cut set Diagnostic decision tree heuristic Algorithm (CuDA)
+This algorithm is based on the set of minimal cut sets of the fault tree. If you already know the minimal cut sets, then we recommend to use this.
+If the number of minimal cut sets is too big, you can try the BUDA or PaDA algorithms.
+
+#### Path set Diagnostic decision tree heuristic Algorithm (PaDA)
+This algorithm is based on the set of minimal path sets of the fault tree. If you already know the minimal path sets, then we recommend to use this.
+If the number of minimal path sets is too big, you can try the BUDA or CuDA algorithms.
 
 ## IDE setup
 
